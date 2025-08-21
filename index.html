@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRITERIA E LEARNING</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles for a mobile-like app container */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Main application frame */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #0d0d0d;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden; /* Prevent child screens from overflowing the main container */
+        }
+
+        /* Generic screen style, hidden by default */
+        .app-screen {
+            display: none;
+            flex-grow: 1;
+            padding: 24px;
+            overflow-y: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.3s ease;
+            box-sizing: border-box; /* Ensure padding is included in screen dimensions */
+        }
+
+        .app-screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0d0d0d;
+            padding: 24px 24px 0;
+        }
+
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            background-color: #1a1a1a;
+            border-top: 1px solid #2d2d2d;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .bottom-nav-item.active {
+            color: #fff;
+        }
+
+        .course-card {
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Custom scrollbar for better mobile feel */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        /* Custom style for the new splash screen */
+        .splash-gradient {
+            background: radial-gradient(circle at center, #1a2a4b, #0d0d0d);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div id="splash-screen" class="app-screen justify-center items-center text-center p-8 active splash-gradient">
+            <div class="relative w-48 h-48 mb-8 flex items-center justify-center">
+                <div class="absolute w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                    <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4a2 2 0 00-2 2v6a2 2 0 002 2l2.5-1.5L9 14l2.5-1.5L14 14l2.5-1.5L18 14V6a2 2 0 00-2-2H4zm0 2h12v5.382l-2-1.2-2 1.2-2-1.2-2 1.2-2-1.2L4 11.382V6z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold mt-12 mb-4">Learn anything, anywhere</h1>
+            <p class="text-gray-400 text-sm mb-8">Start your learning journey now</p>
+            <button onclick="showScreen('login-screen')" class="bg-white text-black font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-200 transition-colors">
+                Get Started
+            </button>
+        </div>
+
+        <div id="login-screen" class="app-screen justify-start items-center p-8">
+            <div class="w-full text-center mt-12">
+                <h2 class="text-3xl font-bold mb-2">Welcome Back!</h2>
+                <p class="text-gray-400 text-sm">Please log in to continue your journey</p>
+            </div>
+            <form id="login-form" class="w-full mt-10">
+                <div class="mb-5">
+                    <label for="email" class="block text-sm font-semibold text-gray-400 mb-2">Email</label>
+                    <input type="email" id="email" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-white" placeholder="demo@example.com">
+                </div>
+                <div class="mb-5">
+                    <label for="password" class="block text-sm font-semibold text-gray-400 mb-2">Password</label>
+                    <input type="password" id="password" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-white" placeholder="password">
+                </div>
+                <button type="submit" class="w-full bg-white text-black font-bold py-4 rounded-full mt-6 hover:bg-gray-200 transition-colors">Login</button>
+            </form>
+        </div>
+
+        <div id="home-screen" class="app-screen">
+            <div class="top-bar">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-400">P</div>
+                    <div>
+                        <p class="text-sm text-gray-400">Welcome back,</p>
+                        <p class="font-semibold">Nsubuga Jordan</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="return-main-btn" class="p-2 bg-gray-800 rounded-full cursor-pointer" title="Return to Main Platform">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    </button>
+                    <div class="p-2 bg-gray-800 rounded-full cursor-pointer">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    </div>
+                </div>
+            </div>
+           
+            <div class="flex-grow p-6 pt-0">
+                <div class="relative mt-6">
+                    <input type="text" placeholder="Search for courses..." class="w-full bg-gray-800 p-4 rounded-xl pl-12 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-600">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-bold mb-3">Categories</h3>
+                    <div class="flex overflow-x-scroll no-scrollbar space-x-3 pb-2">
+                        <button class="category-btn bg-white text-black text-sm px-4 py-2 rounded-full whitespace-nowrap font-semibold" onclick="renderCategoryCourses('all')">All</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('math')">Math</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('kiswahili')">Kiswahili</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('french')">French</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('english')">English</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('geography')">Geography</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('entrepreneurship')">Entrepreneurship</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('td')">TD</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('biology')">Biology</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('chemistry')">Chemistry</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('physics')">Physics</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('ict')">ICT</button>
+                        <button class="category-btn bg-gray-800 text-white text-sm px-4 py-2 rounded-full whitespace-nowrap border-2 border-transparent hover:border-gray-500 transition-colors" onclick="renderCategoryCourses('pe')">PE</button>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold">Popular Courses</h3>
+                        <a href="#" class="text-sm text-gray-400">See All</a>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="course-card relative" onclick="showCourse('design-ux')">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?fit=crop&w=400&q=80" class="w-full h-24 object-cover rounded-t-xl" alt="UI/UX Design">
+                            <div class="p-3">
+                                <h4 class="text-sm font-semibold text-gray-200">UI/UX Design</h4>
+                                <p class="text-xs text-gray-500 mt-1">45 Lessons</p>
+                                <div class="flex items-center mt-2">
+                                    <div class="w-16 bg-gray-600 rounded-full h-1.5 mr-2">
+                                        <div class="bg-white h-1.5 rounded-full" style="width: 75%;"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-400">75%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="course-card relative" onclick="showCourse('data-science')">
+                            <img src="https://images.unsplash.com/photo-1522204732107-e81881519a71?fit=crop&w=400&q=80" class="w-full h-24 object-cover rounded-t-xl" alt="Data Science">
+                            <div class="p-3">
+                                <h4 class="text-sm font-semibold text-gray-200">Data Science</h4>
+                                <p class="text-xs text-gray-500 mt-1">32 Lessons</p>
+                                <div class="flex items-center mt-2">
+                                    <div class="w-16 bg-gray-600 rounded-full h-1.5 mr-2">
+                                        <div class="bg-white h-1.5 rounded-full" style="width: 40%;"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-400">40%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold mb-3">Ongoing</h3>
+                    <div class="space-y-4">
+                        <div class="course-card flex p-4 items-center">
+                            <img src="https://images.unsplash.com/photo-1622340537025-a1309f984852?fit=crop&w=150&q=80" class="w-16 h-16 object-cover rounded-lg mr-4" alt="Social Media Marketing">
+                            <div class="flex-grow">
+                                <h4 class="text-base font-semibold">Social Media Marketing</h4>
+                                <p class="text-sm text-gray-400 mt-1">10 Lessons</p>
+                            </div>
+                            <div class="relative w-12 h-12">
+                                <svg class="w-full h-full text-gray-700" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                                    <path class="stroke-current" fill="none" d="M18 2.0845a15.9155 15.9155 0 010 31.831" stroke-width="2.5" />
+                                    <path class="text-white stroke-current" fill="none" d="M18 2.0845a15.9155 15.9155 0 010 31.831" stroke-width="2.5" stroke-dasharray="80, 100" />
+                                </svg>
+                                <span class="absolute inset-0 flex items-center justify-center text-xs font-semibold">80%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold mb-3">All Courses</h3>
+                    <div id="courses-list" class="grid grid-cols-2 gap-4">
+                        </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="bottom-nav-item active" onclick="showScreen('home-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+                    <span class="text-xs">Home</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('calendar-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 4h-2V2h-2v2H9V2H7v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 13h3v3H9v-3zm5 0h3v3h-3v-3z"></path></svg>
+                    <span class="text-xs">Calendar</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('quiz-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"></path></svg>
+                    <span class="text-xs">Quiz</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('certificate-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zm0 14c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path></svg>
+                    <span class="text-xs">Certificate</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('profile-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                    <span class="text-xs">Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="calendar-screen" class="app-screen">
+            <div class="top-bar">
+                <a href="#" onclick="showScreen('home-screen'); return false;" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                <h2 class="text-xl font-bold">My Schedule</h2>
+                <button onclick="logout()">
+                    <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
+            </div>
+            <div class="flex-grow p-6 pt-0">
+                <div class="flex justify-between items-center mb-6">
+                    <p id="current-month-year" class="text-sm font-semibold text-gray-400"></p>
+                    <div class="flex space-x-4">
+                        <button class="text-gray-400" onclick="changeMonth(-1)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button class="text-gray-400" onclick="changeMonth(1)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-sm mb-4">
+                    <div class="text-gray-400">Sun</div>
+                    <div class="text-gray-400">Mon</div>
+                    <div class="text-gray-400">Tue</div>
+                    <div class="text-gray-400">Wed</div>
+                    <div class="text-gray-400">Thu</div>
+                    <div class="text-gray-400">Fri</div>
+                    <div class="text-gray-400">Sat</div>
+                </div>
+                <div id="calendar-days" class="grid grid-cols-7 gap-1 text-center text-sm">
+                    </div>
+                <div class="mt-8">
+                    <h3 id="schedule-date-header" class="text-xl font-bold mb-4"></h3>
+                    <div id="schedule-list" class="space-y-4">
+                        </div>
+                </div>
+            </div>
+           
+            <div class="bottom-nav">
+                <div class="bottom-nav-item" onclick="showScreen('home-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+                    <span class="text-xs">Home</span>
+                </div>
+                <div class="bottom-nav-item active" onclick="showScreen('calendar-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 4h-2V2h-2v2H9V2H7v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 13h3v3H9v-3zm5 0h3v3h-3v-3z"></path></svg>
+                    <span class="text-xs">Calendar</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('quiz-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"></path></svg>
+                    <span class="text-xs">Quiz</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('certificate-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zm0 14c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path></svg>
+                    <span class="text-xs">Certificate</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('profile-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                    <span class="text-xs">Profile</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="course-detail-screen" class="app-screen">
+            <div class="top-bar">
+                <a href="#" onclick="showScreen('home-screen'); return false;" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                <h2 class="text-xl font-bold">Course Details</h2>
+                <div></div>
+            </div>
+            <div class="flex-grow p-6 pt-0">
+                <div class="relative h-48 bg-gray-800 rounded-xl overflow-hidden mb-6">
+                    <img id="course-image" src="" alt="Course Image" class="w-full h-full object-cover opacity-50">
+                    <div class="absolute inset-0 flex items-end p-4">
+                        <div>
+                            <h3 id="course-title" class="text-2xl font-bold"></h3>
+                            <p id="course-lessons" class="text-sm text-gray-400"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-lg font-bold">About the course</h4>
+                    <span id="course-progress" class="text-sm font-semibold text-gray-400"></span>
+                </div>
+                <p id="course-description" class="text-gray-400 text-sm mb-6"></p>
+               
+                <h4 class="text-lg font-bold mb-4">Lessons</h4>
+                <div id="lessons-list" class="space-y-3">
+                    </div>
+            </div>
+        </div>
+
+        <div id="lesson-screen" class="app-screen">
+            <div class="top-bar">
+                <a href="#" onclick="showScreen('course-detail-screen'); return false;" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                <h2 id="lesson-title-header" class="text-xl font-bold">Lesson Title</h2>
+                <div></div>
+            </div>
+            <div class="flex-grow p-6 pt-0">
+                <div id="lesson-activities-container" class="space-y-6">
+                    </div>
+                <button id="complete-lesson-btn" class="w-full bg-white text-black font-bold py-4 rounded-full mt-6 hover:bg-gray-200 transition-colors">Mark as Completed</button>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="app-screen">
+            <div class="top-bar">
+                <a href="#" onclick="showScreen('home-screen'); return false;" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                <h2 class="text-xl font-bold">Quizzes</h2>
+                <div></div>
+            </div>
+            <div class="flex-grow p-6 pt-0">
+                <h3 class="text-xl font-bold mb-4">Available Quizzes</h3>
+                <div id="quiz-list" class="space-y-4">
+                    </div>
+            </div>
+        </div>
+       
+        <div id="quiz-questions-screen" class="app-screen">
+            <div class="top-bar">
+                <a href="#" onclick="showScreen('quiz-screen'); return false;" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                <h2 id="quiz-title" class="text-xl font-bold">Quiz Title</h2>
+                <div></div>
+            </div>
+            <div class="flex-grow p-6 pt-0">
+                <div id="quiz-container" class="space-y-6">
+                    </div>
+                <div class="flex justify-between mt-6">
+                    <button id="prev-btn" class="bg-gray-700 text-white font-bold py-3 px-6 rounded-full disabled:opacity-50" disabled>Previous</button>
+                    <button id="next-btn" class="bg-white text-black font-bold py-3 px-6 rounded-full">Next</button>
+                    <button id="submit-btn" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full hidden">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="certificate-screen" class="app-screen">
+            <div class="top-bar">
+                <a href="#" onclick="showScreen('home-screen'); return false;" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                <h2 class="text-xl font-bold">My Certificates</h2>
+                <div></div>
+            </div>
+            <div class="flex-grow p-6 pt-0 text-center">
+                <div id="certificates-container" class="space-y-6 mt-8">
+                    </div>
+            </div>
+        </div>
+
+        <div id="profile-screen" class="app-screen">
+            <div class="top-bar">
+                <a href="#" onclick="showScreen('home-screen'); return false;" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </a>
+                <h2 class="text-xl font-bold">Profile</h2>
+                <button onclick="logout()">
+                    <svg class="w-6 h-6 text-gray-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
+            </div>
+            <div class="flex-grow p-6 pt-0 text-center">
+                <div class="w-24 h-24 rounded-full bg-gray-700 mx-auto mt-8 flex items-center justify-center text-3xl font-bold text-gray-400">P</div>
+                <h3 class="text-2xl font-bold mt-4">Nsubuga Jordan</h3>
+                <p class="text-sm text-gray-400">Student</p>
+               
+                <div class="mt-8 grid grid-cols-2 gap-4 text-left">
+                    <div class="bg-gray-800 p-4 rounded-xl">
+                        <p class="text-lg font-bold">12</p>
+                        <p class="text-xs text-gray-400">Courses</p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-xl">
+                        <p class="text-lg font-bold">48h</p>
+                        <p class="text-xs text-gray-400">Time Spent</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-gray-800 p-6 rounded-xl text-left">
+                    <h4 class="text-lg font-bold mb-4">Account Details</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-400">Email</p>
+                            <p class="font-semibold">jordan_criteria@gmail.com</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Membership</p>
+                            <p class="font-semibold">Premium</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-left">
+                    <h4 class="text-lg font-bold mb-4">My Courses Progress</h4>
+                    <div id="progress-bars" class="space-y-4">
+                        </div>
+                </div>
+            </div>
+           
+            <div class="bottom-nav">
+                <div class="bottom-nav-item" onclick="showScreen('home-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+                    <span class="text-xs">Home</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('calendar-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 4h-2V2h-2v2H9V2H7v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 13h3v3H9v-3zm5 0h3v3h-3v-3z"></path></svg>
+                    <span class="text-xs">Calendar</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('quiz-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"></path></svg>
+                    <span class="text-xs">Quiz</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('certificate-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zm0 14c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"></path></svg>
+                    <span class="text-xs">Certificate</span>
+                </div>
+                <div class="bottom-nav-item" onclick="showScreen('profile-screen')">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                    <span class="text-xs">Profile</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const appState = {
+            isLoggedIn: false,
+            activeScreen: 'splash-screen',
+            certificates: [] // Array to store earned certificates
+        };
+
+        const mockCourses = {
+            'design-ux': {
+                id: 'design-ux',
+                title: 'UI/UX Design Masterclass',
+                lessons: 4,
+                progress: '25%',
+                image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?fit=crop&w=800&q=80',
+                description: 'A comprehensive course covering the fundamentals and advanced topics of User Interface (UI) and User Experience (UX) design. Learn to create beautiful, intuitive, and effective digital products.',
+                lessonsList: [
+                    {
+                        title: 'Introduction to UI/UX',
+                        summary: 'Understand the core concepts and importance of UI/UX design.',
+                        completed: false,
+                        quiz: {
+                            title: 'Intro to UI/UX Quiz',
+                            questions: [
+                                { question: 'What does UI stand for?', options: ['User Interface', 'Universal Integration', 'User Interaction'], answer: 'User Interface' },
+                                { question: 'What is the primary goal of UX design?', options: ['To make a product beautiful', 'To make a product usable and enjoyable', 'To make a product fast'], answer: 'To make a product usable and enjoyable' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'User Research & Persona Creation',
+                        summary: 'Learn to conduct user research and create user personas.',
+                        completed: false,
+                        quiz: {
+                            title: 'User Research Quiz',
+                            questions: [
+                                { question: 'What is a user persona?', options: ['A type of software', 'A fictional representation of a user', 'A marketing strategy'], answer: 'A fictional representation of a user' },
+                                { question: 'Which of these is a method of user research?', options: ['Surveys', 'Baking', 'Gardening'], answer: 'Surveys' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Wireframing & Prototyping',
+                        summary: 'Create low-fidelity wireframes and interactive prototypes.',
+                        completed: false,
+                        quiz: {
+                            title: 'Wireframing Quiz',
+                            questions: [
+                                { question: 'What is a wireframe?', options: ['A high-fidelity design', 'A low-fidelity layout of a web page', 'A code framework'], answer: 'A low-fidelity layout of a web page' },
+                                { question: 'What is the purpose of a prototype?', options: ['To create a final product', 'To test and validate design ideas', 'To write code'], answer: 'To test and validate design ideas' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Visual Design & UI Kits',
+                        summary: 'Master the principles of visual design and use of UI kits.',
+                        completed: false,
+                        quiz: {
+                            title: 'Visual Design Quiz',
+                            questions: [
+                                { question: 'What is a UI Kit?', options: ['A set of user interface components', 'A type of computer hardware', 'A programming language'], answer: 'A set of user interface components' },
+                                { question: 'What is typography?', options: ['The study of typefaces', 'A type of photography', 'The art of drawing'], answer: 'The study of typefaces' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'design'
+            },
+            'data-science': {
+                id: 'data-science',
+                title: 'Introduction to Data Science',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://images.unsplash.com/photo-1522204732107-e81881519a71?fit=crop&w=800&q=80',
+                description: 'This course provides a solid foundation in data science, including data analysis, machine learning, and visualization.',
+                lessonsList: [
+                    {
+                        title: 'What is Data Science?',
+                        summary: 'Get a high-level overview of what data science is and its applications.',
+                        completed: false,
+                        quiz: {
+                            title: 'Data Science Overview Quiz',
+                            questions: [
+                                { question: 'What is data science?', options: ['The study of data', 'A field of computer science', 'A multi-disciplinary field that uses scientific methods, processes, algorithms and systems to extract knowledge and insights from structured and unstructured data'], answer: 'A multi-disciplinary field that uses scientific methods, processes, algorithms and systems to extract knowledge and insights from structured and unstructured data' },
+                                { question: 'Which of the following is NOT a data science tool?', options: ['Python', 'R', 'Hammer'], answer: 'Hammer' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Python for Data Analysis',
+                        summary: 'Master the essential Python libraries like Pandas and NumPy.',
+                        completed: false,
+                        quiz: {
+                            title: 'Python for Data Analysis Quiz',
+                            questions: [
+                                { question: 'What is the main purpose of the Pandas library?', options: ['Web development', 'Data manipulation and analysis', 'Game development'], answer: 'Data manipulation and analysis' },
+                                { question: 'What is a DataFrame in Pandas?', options: ['A 3D array', 'A 2D labeled data structure', 'A single column of data'], answer: 'A 2D labeled data structure' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Data Cleaning and Preprocessing',
+                        summary: 'Learn techniques to handle missing data and prepare it for modeling.',
+                        completed: false,
+                        quiz: {
+                            title: 'Data Cleaning Quiz',
+                            questions: [
+                                { question: 'Why is data cleaning important?', options: ['To make data look nice', 'To ensure data quality for analysis', 'To make data smaller'], answer: 'To ensure data quality for analysis' },
+                                { question: 'What is "missing data"?', options: ['Data that is lost forever', 'Data that has not been collected or is not available', 'Data that is incorrect'], answer: 'Data that has not been collected or is not available' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'economy'
+            },
+            'math-fundamentals': {
+                id: 'math-fundamentals',
+                title: 'Math Fundamentals',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://images.unsplash.com/photo-1579783902671-5576a16087b3?fit=crop&w=800&q=80',
+                description: 'A beginner-friendly course to master the essential mathematical concepts, including algebra, geometry, and basic statistics.',
+                lessonsList: [
+                    {
+                        title: 'Basic Arithmetic',
+                        summary: 'A refresher on addition, subtraction, multiplication, and division.',
+                        completed: false,
+                        quiz: {
+                            title: 'Basic Arithmetic Quiz',
+                            questions: [
+                                { question: 'What is the sum of 15 and 27?', options: ['40', '42', '32'], answer: '42' },
+                                { question: 'What is 8 multiplied by 6?', options: ['42', '48', '56'], answer: '48' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Introduction to Algebra',
+                        summary: 'Learn the fundamentals of algebraic expressions and equations.',
+                        completed: false,
+                        quiz: {
+                            title: 'Algebra Basics Quiz',
+                            questions: [
+                                { question: 'If x + 5 = 12, what is the value of x?', options: ['6', '7', '8'], answer: '7' },
+                                { question: 'What does 2x + 3y mean?', options: ['A number', 'An expression', 'An equation'], answer: 'An expression' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Basic Geometry',
+                        summary: 'Explore shapes, angles, and area calculations.',
+                        completed: false,
+                        quiz: {
+                            title: 'Basic Geometry Quiz',
+                            questions: [
+                                { question: 'How many sides does a hexagon have?', options: ['5', '6', '7'], answer: '6' },
+                                { question: 'What is the formula for the area of a rectangle?', options: ['Length + Width', 'Length * Width', '2 * (Length + Width)'], answer: 'Length * Width' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'math'
+            },
+            'kiswahili-intro': {
+                id: 'kiswahili-intro',
+                title: 'Introduction to Kiswahili',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://images.unsplash.com/photo-1627544062141-897914441f71?fit=crop&w=800&q=80',
+                description: 'Learn the basics of the Kiswahili language, including greetings, common phrases, and simple sentence construction.',
+                lessonsList: [
+                    {
+                        title: 'Greetings and Introductions',
+                        summary: 'Basic conversational phrases and greetings.',
+                        completed: false,
+                        quiz: {
+                            title: 'Greetings Quiz',
+                            questions: [
+                                { question: 'What does "Habari?" mean?', options: ['Hello', 'How are you?', 'Goodbye'], answer: 'How are you?' },
+                                { question: 'How do you say "Thank you" in Kiswahili?', options: ['Sawa', 'Nzuri', 'Asante'], answer: 'Asante' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Common Phrases',
+                        summary: 'Learn useful phrases for everyday conversations.',
+                        completed: false,
+                        quiz: {
+                            title: 'Common Phrases Quiz',
+                            questions: [
+                                { question: 'How do you say "Please" in Kiswahili?', options: ['Tafadhali', 'Karibu', 'Pole'], answer: 'Tafadhali' },
+                                { question: 'What does "Karibu" mean?', options: ['Thank you', 'Goodbye', 'Welcome'], answer: 'Welcome' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Numbers and Counting',
+                        summary: 'Master numbers from 1 to 10 and beyond.',
+                        completed: false,
+                        quiz: {
+                            title: 'Numbers Quiz',
+                            questions: [
+                                { question: 'What is the Kiswahili word for "three"?', options: ['Mbili', 'Nne', 'Tatu'], answer: 'Tatu' },
+                                { question: 'How do you say "ten" in Kiswahili?', options: ['Tisa', 'Kumi', 'Moja'], answer: 'Kumi' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'kiswahili'
+            },
+            'french-intro': {
+                id: 'french-intro',
+                title: 'French for Beginners',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://images.unsplash.com/photo-1549444391-f925b40c6c22?fit=crop&w=800&q=80',
+                description: 'An introductory course to the French language, covering pronunciation, vocabulary, and basic conversational skills.',
+                lessonsList: [
+                    {
+                        title: 'Alphabet and Pronunciation',
+                        summary: 'Learn the French alphabet and key pronunciation rules.',
+                        completed: false,
+                        quiz: {
+                            title: 'Pronunciation Quiz',
+                            questions: [
+                                { question: 'What is the French word for "hello"?', options: ['Au revoir', 'Bonjour', 'Merci'], answer: 'Bonjour' },
+                                { question: 'What is a French "accent"?', options: ['A way of speaking', 'A diacritical mark', 'A type of food'], answer: 'A diacritical mark' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Common Greetings',
+                        summary: 'Master how to greet people in various situations.',
+                        completed: false,
+                        quiz: {
+                            title: 'Greetings Quiz',
+                            questions: [
+                                { question: 'How do you say "Good morning" in French?', options: ['Bonne nuit', 'Bonjour', 'Bonsoir'], answer: 'Bonjour' },
+                                { question: 'How do you say "Goodbye" in French?', options: ['Merci', 'Au revoir', 'Salut'], answer: 'Au revoir' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Introducing Yourself',
+                        summary: 'Learn how to say your name and where you are from.',
+                        completed: false,
+                        quiz: {
+                            title: 'Introductions Quiz',
+                            questions: [
+                                { question: 'What is the French for "My name is..."?', options: ['Je m\'appelle...', 'J\'ai...', 'Je suis...'], answer: 'Je m\'appelle...' },
+                                { question: 'What does "Comment ça va?" mean?', options: ['What is your name?', 'How are you?', 'Where are you from?'], answer: 'How are you?' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'french'
+            },
+            'english-grammar': {
+                id: 'english-grammar',
+                title: 'English Grammar Basics',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://images.unsplash.com/photo-1549280693-e45f94b8e88e?fit=crop&w=800&q=80',
+                description: 'A course designed to improve your understanding and use of English grammar, covering tenses, parts of speech, and sentence structure.',
+                lessonsList: [
+                    {
+                        title: 'Parts of Speech',
+                        summary: 'Identify and understand nouns, verbs, adjectives, and adverbs.',
+                        completed: false,
+                        quiz: {
+                            title: 'Parts of Speech Quiz',
+                            questions: [
+                                { question: 'In "The car is fast," which word is the adjective?', options: ['car', 'is', 'fast'], answer: 'fast' },
+                                { question: 'Which of the following is a noun?', options: ['quickly', 'run', 'table'], answer: 'table' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Sentence Structure',
+                        summary: 'Learn about subjects, predicates, and different types of sentences.',
+                        completed: false,
+                        quiz: {
+                            title: 'Sentence Structure Quiz',
+                            questions: [
+                                { question: 'Which part of a sentence tells "who" or "what" the sentence is about?', options: ['Predicate', 'Subject', 'Object'], answer: 'Subject' },
+                                { question: 'A simple sentence has one independent clause.', options: ['True', 'False'], answer: 'True' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Verb Tenses',
+                        summary: 'Master the use of past, present, and future tenses.',
+                        completed: false,
+                        quiz: {
+                            title: 'Verb Tenses Quiz',
+                            questions: [
+                                { question: 'Which tense is used to describe an action that happened in the past?', options: ['Present', 'Future', 'Past'], answer: 'Past' },
+                                { question: 'What is the past tense of "go"?', options: ['goed', 'went', 'gone'], answer: 'went' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'english'
+            },
+            'geography-world': {
+                id: 'geography-world',
+                title: 'World Geography',
+                lessons: 3,
+                progress: '0%',
+                image:  'https://placehold.co/800x400/4e84d4/ffffff?text=Geography',
+                description: 'An introductory course to the physical and political geography of the world. Explore continents, oceans, and global climate patterns.',
+                lessonsList: [
+                    {
+                        title: 'Continents and Oceans',
+                        summary: 'Learn about the seven continents and five oceans of the world.',
+                        completed: false,
+                        quiz: {
+                            title: 'Continents Quiz',
+                            questions: [
+                                { question: 'Which is the largest continent by land area?', options: ['Africa', 'Asia', 'North America'], answer: 'Asia' },
+                                { question: 'Which ocean is the deepest?', options: ['Atlantic', 'Indian', 'Pacific'], answer: 'Pacific' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Capital Cities',
+                        summary: 'Memorize the capitals of major countries.',
+                        completed: false,
+                        quiz: {
+                            title: 'Capitals Quiz',
+                            questions: [
+                                { question: 'What is the capital of France?', options: ['Berlin', 'London', 'Paris'], answer: 'Paris' },
+                                { question: 'What is the capital of Japan?', options: ['Beijing', 'Seoul', 'Tokyo'], answer: 'Tokyo' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Major Rivers and Mountains',
+                        summary: 'Identify the world\'s most famous rivers and mountain ranges.',
+                        completed: false,
+                        quiz: {
+                            title: 'Rivers & Mountains Quiz',
+                            questions: [
+                                { question: 'Which is the longest river in the world?', options: ['Nile River', 'Amazon River', 'Mississippi River'], answer: 'Nile River' },
+                                { question: 'Which mountain is the highest in the world?', options: ['Mount Fuji', 'Mount Everest', 'K2'], answer: 'Mount Everest' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'geography'
+            },
+            'entrepreneurship-basics': {
+                id: 'entrepreneurship-basics',
+                title: 'Basics of Entrepreneurship',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://placehold.co/800x400/ff6b6b/ffffff?text=Entrepreneurship',
+                description: 'Learn the fundamentals of starting and running a successful business, from ideation to marketing.',
+                lessonsList: [
+                    {
+                        title: 'The Entrepreneurial Mindset',
+                        summary: 'Explore the key traits and habits of successful entrepreneurs.',
+                        completed: false,
+                        quiz: {
+                            title: 'Mindset Quiz',
+                            questions: [
+                                { question: 'What is a key trait of an entrepreneur?', options: ['Risk-aversion', 'Persistence', 'Laziness'], answer: 'Persistence' },
+                                { question: 'What is a business plan?', options: ['A company logo', 'A detailed roadmap for a new business', 'A marketing slogan'], answer: 'A detailed roadmap for a new business' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Market Research',
+                        summary: 'Understand how to identify a target market and analyze competitors.',
+                        completed: false,
+                        quiz: {
+                            title: 'Market Research Quiz',
+                            questions: [
+                                { question: 'What is a "target market"?', options: ['A place to sell goods', 'A specific group of consumers a company aims to reach', 'A type of market stall'], answer: 'A specific group of consumers a company aims to reach' },
+                                { question: 'What is a competitor analysis?', options: ['A survey of customers', 'An evaluation of a competitor\'s strengths and weaknesses', 'A financial report'], answer: 'An evaluation of a competitor\'s strengths and weaknesses' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Creating a Business Plan',
+                        summary: 'Learn to structure and write a comprehensive business plan.',
+                        completed: false,
+                        quiz: {
+                            title: 'Business Plan Quiz',
+                            questions: [
+                                { question: 'Which section of a business plan summarizes its key points?', options: ['Financial projections', 'Executive summary', 'Marketing plan'], answer: 'Executive summary' },
+                                { question: 'Why is a business plan important?', options: ['It is a legal requirement', 'It helps guide the business and attract investors', 'It is only for large companies'], answer: 'It helps guide the business and attract investors' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'entrepreneurship'
+            },
+            'td-intro': {
+                id: 'td-intro',
+                title: 'Technical Drawing Essentials',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://placehold.co/800x400/6f1d1b/ffffff?text=TD',
+                description: 'An introduction to technical drawing, covering drafting tools, orthographic projection, and dimensioning.',
+                lessonsList: [
+                    {
+                        title: 'Introduction to Drafting Tools',
+                        summary: 'Identify and understand the use of various technical drawing instruments.',
+                        completed: false,
+                        quiz: {
+                            title: 'Drafting Tools Quiz',
+                            questions: [
+                                { question: 'What is the purpose of a T-square?', options: ['To measure angles', 'To draw horizontal lines', 'To erase mistakes'], answer: 'To draw horizontal lines' },
+                                { question: 'What is a compass used for?', options: ['Drawing circles and arcs', 'Measuring distance', 'Drawing straight lines'], answer: 'Drawing circles and arcs' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Orthographic Projection',
+                        summary: 'Learn the method of representing a 3D object in 2D views.',
+                        completed: false,
+                        quiz: {
+                            title: 'Orthographic Projection Quiz',
+                            questions: [
+                                { question: 'How many standard views are typically used in orthographic projection?', options: ['1', '3', '6'], answer: '3' },
+                                { question: 'What are the three main views?', options: ['Top, Bottom, Side', 'Front, Top, Side', 'Back, Front, Top'], answer: 'Front, Top, Side' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Dimensioning',
+                        summary: 'Master the rules for adding dimensions to a technical drawing.',
+                        completed: false,
+                        quiz: {
+                            title: 'Dimensioning Quiz',
+                            questions: [
+                                { question: 'What is a dimension line?', options: ['A line that shows the size of an object', 'A line that connects two points', 'A line that shows the center of a circle'], answer: 'A line that shows the size of an object' },
+                                { question: 'What is the purpose of an arrowhead?', options: ['To point to the object', 'To indicate the extent of the dimension line', 'To draw attention'], answer: 'To indicate the extent of the dimension line' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'td'
+            },
+            'biology-cell': {
+                id: 'biology-cell',
+                title: 'The Living Cell',
+                lessons: 3,
+                progress: '0%',
+                image:'https://placehold.co/800x400/38a169/ffffff?text=Biology',
+                description: 'A deep dive into the structure and function of the living cell, the fundamental unit of life.',
+                lessonsList: [
+                    {
+                        title: 'Cell Theory and Prokaryotes',
+                        summary: 'Learn the basic tenets of cell theory and the characteristics of prokaryotic cells.',
+                        completed: false,
+                        quiz: {
+                            title: 'Cell Theory Quiz',
+                            questions: [
+                                { question: 'Which of the following is NOT part of the cell theory?', options: ['All living things are made of cells', 'Cells are the basic unit of life', 'All cells have a nucleus'], answer: 'All cells have a nucleus' },
+                                { question: 'What is a prokaryote?', options: ['A cell with a nucleus', 'A cell without a nucleus', 'A type of plant cell'], answer: 'A cell without a nucleus' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Eukaryotic Cell Structure',
+                        summary: 'Explore the organelles and their functions in eukaryotic cells.',
+                        completed: false,
+                        quiz: {
+                            title: 'Eukaryotic Cell Quiz',
+                            questions: [
+                                { question: 'Which organelle is the "powerhouse" of the cell?', options: ['Nucleus', 'Mitochondria', 'Ribosome'], answer: 'Mitochondria' },
+                                { question: 'What is the function of the cell membrane?', options: ['To control what enters and leaves the cell', 'To produce energy', 'To store genetic information'], answer: 'To control what enters and leaves the cell' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Cellular Reproduction',
+                        summary: 'Understand the processes of mitosis and meiosis.',
+                        completed: false,
+                        quiz: {
+                            title: 'Cell Reproduction Quiz',
+                            questions: [
+                                { question: 'Which process produces two identical daughter cells?', options: ['Meiosis', 'Mitosis'], answer: 'Mitosis' },
+                                { question: 'Which process is responsible for producing gametes (sex cells)?', options: ['Mitosis', 'Meiosis'], answer: 'Meiosis' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'biology'
+            },
+            'chemistry-basics': {
+                id: 'chemistry-basics',
+                title: 'Basic Chemistry Principles',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://images.unsplash.com/photo-1522204732107-e81881519a71?fit=crop&w=800&q=80',
+                description: 'This course covers foundational chemistry concepts, including atomic structure, the periodic table, and chemical bonding.',
+                lessonsList: [
+                    {
+                        title: 'Atomic Structure',
+                        summary: 'Explore the components of an atom: protons, neutrons, and electrons.',
+                        completed: false,
+                        quiz: {
+                            title: 'Atomic Structure Quiz',
+                            questions: [
+                                { question: 'Which subatomic particle has a positive charge?', options: ['Electron', 'Neutron', 'Proton'], answer: 'Proton' },
+                                { question: 'What is the center of an atom called?', options: ['Orbit', 'Shell', 'Nucleus'], answer: 'Nucleus' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'The Periodic Table',
+                        summary: 'Learn how elements are organized and key properties.',
+                        completed: false,
+                        quiz: {
+                            title: 'Periodic Table Quiz',
+                            questions: [
+                                { question: 'What is the chemical symbol for gold?', options: ['Ag', 'Au', 'Fe'], answer: 'Au' },
+                                { question: 'How are elements on the periodic table organized?', options: ['Alphabetically', 'By atomic number', 'By color'], answer: 'By atomic number' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Chemical Bonding',
+                        summary: 'Understand the difference between covalent and ionic bonds.',
+                        completed: false,
+                        quiz: {
+                            title: 'Chemical Bonding Quiz',
+                            questions: [
+                                { question: 'What is an ionic bond?', options: ['A sharing of electrons', 'A transfer of electrons', 'A bond between two nonmetals'], answer: 'A transfer of electrons' },
+                                { question: 'What is a covalent bond?', options: ['A sharing of electrons', 'A transfer of electrons', 'A bond between two metals'], answer: 'A sharing of electrons' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'chemistry'
+            },
+            'physics-mechanics': {
+                id: 'physics-mechanics',
+                title: 'Introduction to Physics',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://placehold.co/800x400/8b5cf6/ffffff?text=Physics',
+                description: 'An introduction to classical mechanics, covering Newton\'s laws of motion, force, energy, and momentum.',
+                lessonsList: [
+                    {
+                        title: 'Newton\'s Laws of Motion',
+                        summary: 'Study the three fundamental laws that govern motion.',
+                        completed: false,
+                        quiz: {
+                            title: 'Newton\'s Laws Quiz',
+                            questions: [
+                                { question: 'Which law states that F = ma?', options: ['First Law', 'Second Law', 'Third Law'], answer: 'Second Law' },
+                                { question: 'What does Newton\'s First Law describe?', options: ['Inertia', 'Gravity', 'Energy'], answer: 'Inertia' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Work and Energy',
+                        summary: 'Understand the concepts of work, potential energy, and kinetic energy.',
+                        completed: false,
+                        quiz: {
+                            title: 'Work and Energy Quiz',
+                            questions: [
+                                { question: 'What is the unit of work?', options: ['Watt', 'Joule', 'Newton'], answer: 'Joule' },
+                                { question: 'The energy of motion is called...', options: ['Potential energy', 'Kinetic energy', 'Thermal energy'], answer: 'Kinetic energy' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Momentum and Impulse',
+                        summary: 'Learn about momentum, impulse, and the conservation of momentum.',
+                        completed: false,
+                        quiz: {
+                            title: 'Momentum Quiz',
+                            questions: [
+                                { question: 'What is the formula for momentum?', options: ['p = m / v', 'p = m + v', 'p = m * v'], answer: 'p = m * v' },
+                                { question: 'Impulse is equal to the change in...', options: ['Velocity', 'Momentum', 'Acceleration'], answer: 'Momentum' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'physics'
+            },
+            'ict-intro': {
+                id: 'ict-intro',
+                title: 'Introduction to ICT',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://placehold.co/800x400/292524/ffffff?text=ICT',
+                description: 'A beginner-friendly course on Information and Communication Technology, covering hardware, software, and networking basics.',
+                lessonsList: [
+                    {
+                        title: 'Computer Hardware Components',
+                        summary: 'Identify and understand the function of key hardware components like the CPU and RAM.',
+                        completed: false,
+                        quiz: {
+                            title: 'Hardware Quiz',
+                            questions: [
+                                { question: 'What does CPU stand for?', options: ['Central Processing Unit', 'Computer Power Up', 'Central Program Utility'], answer: 'Central Processing Unit' },
+                                { question: 'What is the purpose of RAM?', options: ['Long-term storage', 'Short-term memory for active programs', 'Permanent storage'], answer: 'Short-term memory for active programs' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Operating Systems',
+                        summary: 'Learn what an operating system is and its role.',
+                        completed: false,
+                        quiz: {
+                            title: 'Operating Systems Quiz',
+                            questions: [
+                                { question: 'Which of the following is an example of an operating system?', options: ['Microsoft Word', 'Windows', 'Google Chrome'], answer: 'Windows' },
+                                { question: 'What is the main function of an OS?', options: ['To run a single program', 'To manage all of the hardware and software resources of the computer', 'To browse the internet'], answer: 'To manage all of the hardware and software resources of the computer' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Networking Basics',
+                        summary: 'Understand the basics of computer networks and the internet.',
+                        completed: false,
+                        quiz: {
+                            title: 'Networking Quiz',
+                            questions: [
+                                { question: 'What does LAN stand for?', options: ['Local Area Network', 'Large Application Node', 'Logical Access Nook'], answer: 'Local Area Network' },
+                                { question: 'What is an IP address?', options: ['A physical address', 'A unique numerical label assigned to each device in a computer network', 'A website name'], answer: 'A unique numerical label assigned to each device in a computer network' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'ict'
+            },
+            'pe-fitness': {
+                id: 'pe-fitness',
+                title: 'Physical Education & Fitness',
+                lessons: 3,
+                progress: '0%',
+                image: 'https://images.unsplash.com/photo-1549444391-f925b40c6c22?fit=crop&w=800&q=80',
+                description: 'A practical course focused on physical fitness, healthy habits, and basic sports techniques.',
+                lessonsList: [
+                    {
+                        title: 'Warm-ups and Stretching',
+                        summary: 'Learn the importance of proper warm-ups and stretching routines.',
+                        completed: false,
+                        quiz: {
+                            title: 'Warm-ups Quiz',
+                            questions: [
+                                { question: 'What is the primary benefit of a warm-up?', options: ['To increase risk of injury', 'To prepare muscles for exercise', 'To cool down the body'], answer: 'To prepare muscles for exercise' },
+                                { question: 'How long should a typical warm-up last?', options: ['30 seconds', '5-10 minutes', '30 minutes'], answer: '5-10 minutes' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Cardiovascular Exercise',
+                        summary: 'Understand the benefits and types of cardio workouts.',
+                        completed: false,
+                        quiz: {
+                            title: 'Cardio Quiz',
+                            questions: [
+                                { question: 'Which of these is a form of cardiovascular exercise?', options: ['Weightlifting', 'Running', 'Stretching'], answer: 'Running' },
+                                { question: 'What is the main benefit of cardio exercise?', options: ['Building muscle mass', 'Improving heart and lung health', 'Increasing flexibility'], answer: 'Improving heart and lung health' },
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Strength Training',
+                        summary: 'Explore the principles of strength training and common exercises.',
+                        completed: false,
+                        quiz: {
+                            title: 'Strength Training Quiz',
+                            questions: [
+                                { question: 'What is the purpose of strength training?', options: ['To build stronger muscles and bones', 'To improve flexibility', 'To lower blood pressure'], answer: 'To build stronger muscles and bones' },
+                                { question: 'Which of the following is a strength training exercise?', options: ['Jogging', 'Swimming', 'Push-ups'], answer: 'Push-ups' },
+                            ]
+                        }
+                    }
+                ],
+                category: 'pe'
+            }
+        };
+
+        const mockSchedule = {
+            '2025-08-03': [
+                { time: '10:00 AM', title: 'Complete "Introduction to UI/UX" quiz', course: 'UI/UX Design', color: 'bg-yellow-500' },
+                { time: '02:00 PM', title: 'Watch "Python for Data Analysis" video', course: 'Data Science', color: 'bg-blue-500' },
+            ],
+            '2025-08-05': [
+                { time: '09:00 AM', title: 'Review English Grammar basics', course: 'English Grammar', color: 'bg-pink-500' }
+            ]
+        };
+
+        const mockProfileProgress = [
+            { title: 'UI/UX Design', progress: 25 },
+            { title: 'Data Science', progress: 0 },
+            { title: 'Social Media Marketing', progress: 80 },
+        ];
+       
+        let currentQuiz = {
+            courseId: null,
+            lessonTitle: null,
+            questions: [],
+            currentQuestionIndex: 0,
+            answers: {}
+        };
+       
+        let calendar = {
+            currentDate: new Date(),
+            selectedDate: new Date()
+        };
+
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.app-screen');
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            appState.activeScreen = screenId;
+
+            const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+            bottomNavItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            if (screenId === 'home-screen') {
+                document.querySelector('.bottom-nav-item:nth-child(1)').classList.add('active');
+            } else if (screenId === 'calendar-screen') {
+                document.querySelector('.bottom-nav-item:nth-child(2)').classList.add('active');
+            } else if (screenId === 'quiz-screen' || screenId === 'quiz-questions-screen') {
+                document.querySelector('.bottom-nav-item:nth-child(3)').classList.add('active');
+            } else if (screenId === 'certificate-screen') {
+                document.querySelector('.bottom-nav-item:nth-child(4)').classList.add('active');
+            } else if (screenId === 'profile-screen') {
+                document.querySelector('.bottom-nav-item:nth-child(5)').classList.add('active');
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            appState.isLoggedIn = true;
+            showScreen('home-screen');
+            renderCategoryCourses('all');
+            renderQuizList();
+        });
+
+        function logout() {
+            appState.isLoggedIn = false;
+            showScreen('login-screen');
+        }
+
+        function renderCategoryCourses(category) {
+            const coursesList = document.getElementById('courses-list');
+            coursesList.innerHTML = '';
+           
+            let filteredCourses = Object.values(mockCourses);
+
+            if (category !== 'all') {
+                filteredCourses = filteredCourses.filter(course => course.category === category);
+            }
+
+            if (filteredCourses.length > 0) {
+                filteredCourses.forEach(course => {
+                    const courseCard = document.createElement('div');
+                    courseCard.className = 'course-card relative';
+                    courseCard.onclick = () => showCourse(course.id);
+                    courseCard.innerHTML = `
+                        <img src="${course.image}" class="w-full h-24 object-cover rounded-t-xl" alt="${course.title}">
+                        <div class="p-3">
+                            <h4 class="text-sm font-semibold text-gray-200">${course.title}</h4>
+                            <p class="text-xs text-gray-500 mt-1">${course.lessons} Lessons</p>
+                            <div class="flex items-center mt-2">
+                                <div class="w-16 bg-gray-600 rounded-full h-1.5 mr-2">
+                                    <div class="bg-white h-1.5 rounded-full" style="width: ${parseInt(course.progress)}%;"></div>
+                                </div>
+                                <span class="text-xs text-gray-400">${course.progress}</span>
+                            </div>
+                        </div>
+                    `;
+                    coursesList.appendChild(courseCard);
+                });
+            } else {
+                coursesList.innerHTML = '<p class="text-gray-400 text-center col-span-2">No courses found in this category.</p>';
+            }
+
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('bg-white', 'text-black', 'font-semibold');
+                btn.classList.add('bg-gray-800', 'text-white');
+                if (btn.innerText.toLowerCase() === category) {
+                    btn.classList.remove('bg-gray-800', 'text-white');
+                    btn.classList.add('bg-white', 'text-black', 'font-semibold');
+                }
+            });
+        }
+       
+        function showCourse(courseId) {
+            const course = mockCourses[courseId];
+            if (!course) return;
+
+            document.getElementById('course-title').innerText = course.title;
+            document.getElementById('course-lessons').innerText = `${course.lessons} Lessons`;
+            document.getElementById('course-image').src = course.image;
+            document.getElementById('course-progress').innerText = `Progress: ${course.progress}`;
+            document.getElementById('course-description').innerText = course.description;
+
+            const lessonsList = document.getElementById('lessons-list');
+            lessonsList.innerHTML = '';
+           
+            if (course.lessonsList.length > 0) {
+                course.lessonsList.forEach((lesson, index) => {
+                    const lessonElement = document.createElement('div');
+                    lessonElement.className = 'flex items-center p-4 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors';
+                    lessonElement.innerHTML = `
+                        <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-lg ${lesson.completed ? 'bg-green-600' : 'bg-gray-700'} text-white font-bold text-sm">
+                            ${index + 1}
+                        </div>
+                        <div class="flex-grow ml-4">
+                            <p class="font-semibold">${lesson.title}</p>
+                            <p class="text-sm text-gray-400">${lesson.summary}</p>
+                        </div>
+                        <div class="flex-shrink-0 ml-4">
+                            ${lesson.completed ? '<svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>' : ''}
+                        </div>
+                    `;
+                    lessonElement.addEventListener('click', () => {
+                        showLesson(courseId, index);
+                    });
+                    lessonsList.appendChild(lessonElement);
+                });
+            } else {
+                lessonsList.innerHTML = `<p class="text-gray-400">No lessons available for this course yet.</p>`;
+            }
+
+            showScreen('course-detail-screen');
+        }
+
+        function showLesson(courseId, lessonIndex) {
+            const course = mockCourses[courseId];
+            const lesson = course.lessonsList[lessonIndex];
+
+            document.getElementById('lesson-title-header').innerText = lesson.title;
+            const activitiesContainer = document.getElementById('lesson-activities-container');
+            activitiesContainer.innerHTML = '';
+           
+            // Add a quiz button if the lesson has one
+            if (lesson.quiz && lesson.quiz.questions.length > 0) {
+                const quizBtn = document.createElement('div');
+                quizBtn.className = 'bg-gray-800 p-4 rounded-xl';
+                quizBtn.innerHTML = `
+                    <h4 class="text-lg font-bold mb-2">Quiz: ${lesson.quiz.title}</h4>
+                    <p class="text-sm text-gray-400">Complete this quiz to test your knowledge!</p>
+                    <button class="w-full mt-4 bg-gray-700 text-white font-semibold py-2 rounded-lg hover:bg-gray-600 transition-colors" onclick="renderQuiz('${courseId}', ${lessonIndex})">Start Quiz</button>
+                `;
+                activitiesContainer.appendChild(quizBtn);
+            } else {
+                activitiesContainer.innerHTML = `<p class="text-gray-400">No activities for this lesson yet.</p>`;
+            }
+
+            document.getElementById('complete-lesson-btn').onclick = () => {
+                alert('Lesson marked as complete!');
+                lesson.completed = true;
+                // You'd add logic here to update overall course progress
+                showCourse(courseId); // Go back to course detail view
+            };
+           
+            document.querySelector('#lesson-screen .top-bar a').onclick = () => {
+                showCourse(courseId);
+                return false;
+            };
+           
+            showScreen('lesson-screen');
+        }
+       
+        function renderQuizList() {
+            const quizListContainer = document.getElementById('quiz-list');
+            quizListContainer.innerHTML = '';
+
+            Object.values(mockCourses).forEach(course => {
+                course.lessonsList.forEach((lesson, lessonIndex) => {
+                    if (lesson.quiz && lesson.quiz.questions.length > 0) {
+                        const quizCard = document.createElement('div');
+                        quizCard.className = 'bg-gray-800 p-4 rounded-xl flex items-center justify-between';
+                        quizCard.innerHTML = `
+                            <div>
+                                <h4 class="font-semibold">${lesson.quiz.title}</h4>
+                                <p class="text-sm text-gray-400">${course.title} - ${lesson.title}</p>
+                            </div>
+                            <button class="bg-white text-black font-semibold py-2 px-4 rounded-full" onclick="renderQuiz('${course.id}', ${lessonIndex})">Start</button>
+                        `;
+                        quizListContainer.appendChild(quizCard);
+                    }
+                });
+            });
+        }
+
+        function renderQuiz(courseId, lessonIndex) {
+            const course = mockCourses[courseId];
+            const lesson = course.lessonsList[lessonIndex];
+            const quizData = lesson.quiz;
+
+            if (!quizData) {
+                alert('No quiz available for this lesson.');
+                return;
+            }
+
+            currentQuiz.courseId = courseId;
+            currentQuiz.lessonTitle = lesson.title;
+            currentQuiz.questions = quizData.questions;
+            currentQuiz.currentQuestionIndex = 0;
+            currentQuiz.answers = {};
+
+            document.getElementById('quiz-title').innerText = quizData.title;
+
+            renderQuestion();
+            showScreen('quiz-questions-screen');
+        }
+
+        function renderQuestion() {
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = '';
+           
+            const questionData = currentQuiz.questions[currentQuiz.currentQuestionIndex];
+            const questionDiv = document.createElement('div');
+            questionDiv.innerHTML = `
+                <p class="text-lg font-semibold mb-4">Question ${currentQuiz.currentQuestionIndex + 1} of ${currentQuiz.questions.length}</p>
+                <p class="text-xl font-bold mb-6">${questionData.question}</p>
+                <div class="space-y-4">
+                    ${questionData.options.map(option => `
+                        <div class="bg-gray-800 p-4 rounded-lg flex items-center cursor-pointer">
+                            <input type="radio" name="quiz-option" value="${option}" class="w-5 h-5 text-yellow-500 bg-gray-900 border-gray-600 focus:ring-yellow-500">
+                            <label class="ml-4 text-base">${option}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            quizContainer.appendChild(questionDiv);
+
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+
+            prevBtn.onclick = showPrevQuestion;
+            nextBtn.onclick = showNextQuestion;
+            submitBtn.onclick = submitQuiz;
+
+            prevBtn.disabled = currentQuiz.currentQuestionIndex === 0;
+            nextBtn.style.display = currentQuiz.currentQuestionIndex === currentQuiz.questions.length - 1 ? 'none' : 'block';
+            submitBtn.style.display = currentQuiz.currentQuestionIndex === currentQuiz.questions.length - 1 ? 'block' : 'none';
+           
+            const savedAnswer = currentQuiz.answers[currentQuiz.currentQuestionIndex];
+            if (savedAnswer) {
+                const radioInput = document.querySelector(`input[name="quiz-option"][value="${savedAnswer}"]`);
+                if (radioInput) {
+                    radioInput.checked = true;
+                }
+            }
+
+            document.querySelectorAll('input[name="quiz-option"]').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    currentQuiz.answers[currentQuiz.currentQuestionIndex] = e.target.value;
+                });
+            });
+        }
+
+        function showPrevQuestion() {
+            const selectedAnswer = document.querySelector('input[name="quiz-option"]:checked');
+            if (selectedAnswer) {
+                currentQuiz.answers[currentQuiz.currentQuestionIndex] = selectedAnswer.value;
+            }
+            if (currentQuiz.currentQuestionIndex > 0) {
+                currentQuiz.currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function showNextQuestion() {
+            const selectedAnswer = document.querySelector('input[name="quiz-option"]:checked');
+            if (selectedAnswer) {
+                currentQuiz.answers[currentQuiz.currentQuestionIndex] = selectedAnswer.value;
+            } else {
+                alert('Please select an option before proceeding.');
+                return;
+            }
+
+            if (currentQuiz.currentQuestionIndex < currentQuiz.questions.length - 1) {
+                currentQuiz.currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            const selectedAnswer = document.querySelector('input[name="quiz-option"]:checked');
+            if (!selectedAnswer) {
+                alert('Please select an option before submitting.');
+                return;
+            }
+            currentQuiz.answers[currentQuiz.currentQuestionIndex] = selectedAnswer.value;
+
+            let score = 0;
+            const courseTitle = mockCourses[currentQuiz.courseId].title;
+            const lessonTitle = currentQuiz.lessonTitle;
+            const passingScore = 0.8; // 80%
+
+            for (let i = 0; i < currentQuiz.questions.length; i++) {
+                if (currentQuiz.answers[i] === currentQuiz.questions[i].answer) {
+                    score++;
+                }
+            }
+
+            const percentage = (score / currentQuiz.questions.length);
+            const scoreMessage = `Quiz completed! You scored ${score} out of ${currentQuiz.questions.length} (${(percentage * 100).toFixed(0)}%).`;
+
+            if (percentage >= passingScore) {
+                alert(scoreMessage + ' You passed!');
+                appState.certificates.push({ courseTitle, lessonTitle, date: new Date() });
+                renderCertificates();
+            } else {
+                alert(scoreMessage + ' You did not pass. Please try again!');
+            }
+            showScreen('quiz-screen');
+        }
+
+        function renderCertificates() {
+            const certificatesContainer = document.getElementById('certificates-container');
+            certificatesContainer.innerHTML = '';
+           
+            if (appState.certificates.length === 0) {
+                certificatesContainer.innerHTML = '<p class="text-gray-400 text-center">You have not earned any certificates yet.</p>';
+                return;
+            }
+
+            appState.certificates.forEach(cert => {
+                const certificateElement = document.createElement('div');
+                certificateElement.className = 'bg-gray-800 p-8 rounded-xl border-4 border-yellow-500';
+                certificateElement.innerHTML = `
+                    <p class="text-xs text-gray-400 uppercase tracking-widest">Certificate of Completion</p>
+                    <h3 class="text-3xl font-bold mt-2 mb-4">Nsubuga Jordan</h3>
+                    <p class="text-lg">For successfully completing the</p>
+                    <h4 class="text-2xl font-bold mt-2 text-yellow-400">${cert.courseTitle}</h4>
+                    <p class="text-md font-semibold text-gray-300 mt-1">${cert.lessonTitle}</p>
+                    <p class="text-sm text-gray-400 mt-4">Issued on: ${cert.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                `;
+                certificatesContainer.appendChild(certificateElement);
+            });
+        }
+       
+        function renderCalendar() {
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+           
+            const currentMonthYear = document.getElementById('current-month-year');
+            currentMonthYear.innerText = `${monthNames[calendar.currentDate.getMonth()]} ${calendar.currentDate.getFullYear()}`;
+
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+
+            const firstDay = new Date(calendar.currentDate.getFullYear(), calendar.currentDate.getMonth(), 1).getDay();
+            const lastDay = new Date(calendar.currentDate.getFullYear(), calendar.currentDate.getMonth() + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'py-2';
+                calendarDays.appendChild(emptyDay);
+            }
+
+            for (let day = 1; day <= lastDay; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'py-2 rounded-lg cursor-pointer transition-colors';
+
+                const today = new Date();
+                const isToday = today.getFullYear() === calendar.currentDate.getFullYear() &&
+                                today.getMonth() === calendar.currentDate.getMonth() &&
+                                day === today.getDate();
+
+                const dateKey = `${calendar.currentDate.getFullYear()}-${String(calendar.currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasEvent = mockSchedule[dateKey];
+
+                if (isToday) {
+                    dayDiv.classList.add('bg-white', 'text-black', 'font-bold');
+                } else if (hasEvent) {
+                    dayDiv.classList.add('bg-gray-700', 'text-white', 'font-semibold');
+                } else {
+                    dayDiv.classList.add('text-gray-400');
+                }
+
+                dayDiv.innerText = day;
+                dayDiv.addEventListener('click', () => {
+                    const selectedDate = new Date(calendar.currentDate.getFullYear(), calendar.currentDate.getMonth(), day);
+                    renderSchedule(selectedDate);
+                });
+                calendarDays.appendChild(dayDiv);
+            }
+            renderSchedule(calendar.selectedDate);
+        }
+
+        function changeMonth(direction) {
+            calendar.currentDate.setMonth(calendar.currentDate.getMonth() + direction);
+            renderCalendar();
+        }
+
+        function renderSchedule(date) {
+            const scheduleDateHeader = document.getElementById('schedule-date-header');
+            const scheduleList = document.getElementById('schedule-list');
+           
+            const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const todaysSchedule = mockSchedule[dateString] || [];
+           
+            scheduleDateHeader.innerText = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            scheduleList.innerHTML = '';
+           
+            if (todaysSchedule.length > 0) {
+                todaysSchedule.forEach(item => {
+                    const scheduleItem = document.createElement('div');
+                    scheduleItem.className = 'flex items-center bg-gray-800 rounded-xl p-4';
+                    scheduleItem.innerHTML = `
+                        <div class="w-2 h-10 ${item.color} rounded-sm mr-4"></div>
+                        <div class="flex-grow">
+                            <p class="font-semibold">${item.title}</p>
+                            <p class="text-xs text-gray-400">${item.course}</p>
+                        </div>
+                        <span class="text-sm text-gray-400">${item.time}</span>
+                    `;
+                    scheduleList.appendChild(scheduleItem);
+                });
+            } else {
+                scheduleList.innerHTML = '<p class="text-gray-400 text-center">No events scheduled for this day.</p>';
+            }
+        }
+
+        function renderProfileProgress() {
+            const progressBars = document.getElementById('progress-bars');
+            progressBars.innerHTML = '';
+            mockProfileProgress.forEach(course => {
+                const progressBar = document.createElement('div');
+                progressBar.className = 'mb-4';
+                progressBar.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm">${course.title}</span>
+                        <span class="text-sm text-gray-400">${course.progress}%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-white h-2 rounded-full" style="width: ${course.progress}%;"></div>
+                    </div>
+                `;
+                progressBars.appendChild(progressBar);
+            });
+        }
+       
+        document.addEventListener('DOMContentLoaded', () => {
+            showScreen('splash-screen');
+            renderCalendar();
+            renderProfileProgress();
+            
+            // Add return to main platform functionality
+            const returnMainBtn = document.getElementById('return-main-btn');
+            if (returnMainBtn) {
+                returnMainBtn.addEventListener('click', () => {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'closeApp' }, '*');
+                    } else {
+                        window.location.href = 'main.html';
+                    }
+                });
+            }
+        });
+    </script>
+    </body>
+</html>

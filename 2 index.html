@@ -1,0 +1,1385 @@
+z
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criteria Pay - Virtual Card</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a; /* Dark background similar to the image */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .card-container {
+            background-color: #2a2a2a; /* Slightly lighter background for the container */
+            border-radius: 20px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px; /* Max width for mobile-like view */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            min-height: 700px; /* Ensure enough height for content */
+        }
+        .card-header {
+            background-color: #2a2a2a;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .card-header svg {
+            fill: #fff;
+        }
+        .virtual-card {
+            /* Updated gradient for a platinum-like appearance */
+            background: linear-gradient(135deg, #6c7a89, #4a5568);
+            border-radius: 15px;
+            padding: 24px;
+            margin: 20px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .virtual-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            opacity: 0.3;
+        }
+        .card-balance {
+            padding: 20px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Removed .action-buttons and .action-button styling as they are no longer on the main dashboard */
+        .transactions {
+            flex-grow: 1; /* Allows transactions to take available space */
+            padding: 20px;
+            color: #fff;
+            overflow-y: auto; /* Enable scrolling for transactions */
+        }
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        .nav-bar {
+            background-color: #2a2a2a;
+            padding: 12px 0;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-item.active {
+            color: #fff;
+        }
+        .nav-item svg {
+            fill: #888;
+            margin-bottom: 4px;
+            transition: fill 0.2s;
+        }
+        .nav-item.active svg {
+            fill: #fff;
+        }
+
+        /* Custom Message Box Styles */
+        .message-box-overlay, .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .message-box-content, .modal-content {
+            background-color: #3a3a3a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: #fff;
+            max-width: 300px;
+            width: 90%;
+            position: relative;
+        }
+        .message-box-content button, .modal-content button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .message-box-content button:hover, .modal-content button:hover {
+            background-color: #0056b3;
+        }
+        .modal-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #ccc;
+            cursor: pointer;
+        }
+        .modal-content input, .modal-content select {
+            background-color: #4a4a4a;
+            border: 1px solid #5a5a5a;
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+            width: calc(100% - 16px);
+            margin-bottom: 10px;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            z-index: 2000;
+        }
+
+        /* Card Selection Modal specific styles */
+        .card-selection-modal .modal-content {
+            max-width: 350px; /* Slightly wider for carousel */
+        }
+        .card-selection-modal .card-carousel {
+            display: flex;
+            overflow-x: scroll; /* Changed to scroll for manual swipe */
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px; /* Space for scroll indicators */
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+            -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+        }
+        .card-selection-modal .card-carousel::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome, Safari, Opera */
+        }
+        .card-selection-modal .card-item {
+            flex: 0 0 auto;
+            width: 90%; /* Adjust as needed */
+            margin: 0 5%; /* Center the card */
+            scroll-snap-align: center;
+            background: linear-gradient(135deg, #6c7a89, #4a5568); /* Platinum */
+            border-radius: 15px;
+            padding: 24px;
+            color: #fff;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box; /* Include padding in width */
+        }
+        .card-selection-modal .card-item.silver {
+            background: linear-gradient(135deg, #cccccc, #aaaaaa); /* Silver */
+        }
+        .card-selection-modal .card-item.selected {
+            border: 2px solid #007bff; /* Highlight selected card */
+        }
+        .card-selection-modal .dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .card-selection-modal .dot {
+            height: 8px;
+            width: 8px;
+            background-color: #555;
+            border-radius: 50%;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .card-selection-modal .dot.active {
+            background-color: #007bff;
+        }
+
+        /* Transfer Options Modal specific styles */
+        .transfer-options-modal .modal-content {
+            max-width: 300px;
+        }
+        .transfer-options-modal .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background-color: #4a4a4a;
+            color: #fff;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .transfer-options-modal .action-button:hover {
+            background-color: #5a5a5a;
+        }
+        .transfer-options-modal .action-button svg {
+            fill: #fff;
+            margin-right: 10px;
+        }
+
+        /* All Transactions Modal specific styles */
+        .all-transactions-modal .modal-content {
+            max-width: 380px;
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+        }
+        .all-transactions-modal .transactions-list-full {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-top: 10px;
+        }
+
+        /* Search Modal specific styles */
+        .search-modal .modal-content {
+            max-width: 350px;
+        }
+        .search-modal .search-results-list {
+            max-height: 300px; /* Limit height for scrollability */
+            overflow-y: auto;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <!-- Login Screen -->
+        <div id="login-screen" class="p-6 flex flex-col justify-center items-center flex-grow">
+            <h1 class="text-3xl font-bold text-white mb-6">Criteria Pay</h1>
+            <form id="login-form" class="w-full max-w-xs">
+                <div class="mb-4">
+                    <label for="username" class="block text-gray-300 text-sm font-bold mb-2">Username:</label>
+                    <input type="text" id="username" name="username" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-gray-300 text-sm font-bold mb-2">Password:</label>
+                    <input type="password" id="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" required>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline w-full">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+            <p class="text-gray-400 text-sm mt-4">Demo credentials: Nsubuga Jordan / Sky_games2011</p>
+        </div>
+
+        <!-- Card Dashboard Screen (hidden by default) -->
+        <div id="card-dashboard-screen" class="hidden flex flex-col flex-grow">
+            <!-- Header -->
+            <div class="card-header">
+                <button id="logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m313-440 224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L200-400q-11-11-11-28t11-28l304-304q11-11 28-11t28 11q11 11 11 28t-11 28L313-440Z"/></svg>
+                </button>
+                <span class="text-lg font-semibold flex-grow text-center" id="dashboard-header-title">Hello Robin</span>
+                <button id="return-main-btn" class="mr-2" title="Return to Main Platform">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M240-200h120v-240h240v240h120v-360L480-760 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg>
+                </button>
+                <button id="search-btn" class="mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252q11 11 11 28t-11 28q-11 11-28 11t-28-11Zm-404-200q75 0 127.5-52.5T580-580q0-75-52.5-127.5T400-760q-75 0-127.5 52.5T220-580q0 75 52.5 127.5T400-320Z"/></svg>
+                </button>
+                <button id="add-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+                </button>
+            </div>
+
+            <!-- Criteria Pay Virtual Card -->
+            <div class="virtual-card cursor-pointer" id="virtual-card-display">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <span class="text-xs text-gray-300">Virtual Card</span>
+                        <div class="font-mono text-xl mt-1" id="displayedCardNumber">**** **** 8882</div>
+                    </div>
+                    <!-- Updated VISA logo placeholder to reflect "Platinum" -->
+                    <img src="https://placehold.co/80x20/000000/ffffff?text=VISA%20Platinum" alt="VISA Platinum Logo" class="h-5" id="displayedCardLogo">
+                </div>
+                <!-- Contactless Payment Symbol (SVG) -->
+                <svg class="absolute top-6 right-6 h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 5h2a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3z"></path>
+                    <path d="M19 9v6"></path>
+                    <path d="M5 9v6"></path>
+                </svg>
+                <div class="absolute bottom-6 left-6 text-sm font-semibold" id="displayedCardName">ROBIN HOLESINSKY</div>
+                <div class="absolute bottom-6 right-6 text-sm text-gray-300" id="displayedCardExpiry">01/26</div>
+            </div>
+
+            <!-- Available Balance -->
+            <div class="card-balance">
+                <div class="text-gray-400 text-sm mb-1">Available Balance</div>
+                <div class="flex justify-between items-center">
+                    <div id="currentBalance" class="text-3xl font-bold">$22,000</div>
+                    <div class="bg-green-600 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full">+56%</div>
+                    <button class="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">Primary</button>
+                </div>
+            </div>
+
+            <!-- Transactions -->
+            <div class="transactions">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-semibold">Recent transactions</span>
+                    <button class="text-blue-400 text-xs px-3 py-1 rounded-full" id="see-all-transactions">See all</button>
+                </div>
+                <div id="transactionsList">
+                    <!-- Transaction items will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Navigation Bar (updated to match image) -->
+            <div class="nav-bar">
+                <div class="nav-item active" data-nav="home">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-200h160v-280h240v280h160v-480L480-840 200-680v480Z"/></svg>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" data-nav="transfer">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m480-160-80-80 56-56q-12-14-25.5-29t-26.5-31q-14-16-25-33.5t-20-37.5q-9-20-13-42t-4-45q0-33 23.5-56.5T480-680q33 0 56.5 23.5T560-600q0 15-4 30t-11 29l-13 23q-6 11-12.5 22t-13.5 23l-20 28 80 80 80-80 56 56-80 80 80 80-56 56-80-80ZM160-160v-640h640v640H160Zm80-80h480v-480H240v480Zm0 0v-480 480Z"/></svg>
+                    <span>Transfer</span>
+                </div>
+                <div class="nav-item" data-nav="scan">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M120-120v-240h80v160h160v80H120Zm0-480v-240h240v80H200v160h-80Zm480 480v-80h160v-160h80v240H600Zm240-480v-240h-240v80h160v160h80Z"/></svg>
+                    <span>Scan</span>
+                </div>
+                <div class="nav-item" data-nav="cards">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-200h560q33 0 56.5-23.5T840-280v-400q0-33-23.5-56.5T760-760H200q-33 0-56.5 23.5T120-680v400q0 33 23.5 56.5T200-200Zm0-80v-400h560v400H200Zm0 0v-400 400Z"/></svg>
+                    <span>Cards</span>
+                </div>
+                <div class="nav-item" data-nav="profile">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-400q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0-480v480-480Z"/></svg>
+                    <span>Profile</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Message Box HTML -->
+    <div id="messageBox" class="message-box-overlay hidden">
+        <div class="message-box-content">
+            <p id="messageText" class="mb-4"></p>
+            <button id="closeMessageBox">OK</button>
+        </div>
+    </div>
+
+    <!-- Fund Card Modal -->
+    <div id="fundCardModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="fundCardModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4">Fund Card</h3>
+            <input type="number" id="fundAmount" placeholder="Amount" class="w-full p-2 rounded mb-4">
+            <button id="submitFund" class="w-full py-2 bg-blue-600 rounded">Add Funds</button>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="withdrawModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4">Withdraw Funds</h3>
+            <input type="number" id="withdrawAmount" placeholder="Amount" class="w-full p-2 rounded mb-4">
+            <button id="submitWithdraw" class="w-full py-2 bg-blue-600 rounded">Withdraw</button>
+        </div>
+    </div>
+
+    <!-- Mobile Money Modal (for MTN & AIRTEL) -->
+    <div id="mobileMoneyModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="mobileMoneyModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4" id="mobileMoneyModalTitle">Mobile Money Payment</h3>
+            <input type="text" id="mobileMoneyNumber" placeholder="Mobile Number" class="w-full p-2 rounded mb-4">
+            <input type="number" id="mobileMoneyAmount" placeholder="Amount" class="w-full p-2 rounded mb-4">
+            <button id="submitMobileMoney" class="w-full py-2 bg-blue-600 rounded">Send Payment</button>
+        </div>
+    </div>
+
+    <!-- Bank Transfer Modal -->
+    <div id="bankTransferModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="bankTransferModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4">Bank Transfer</h3>
+            <input type="text" id="bankName" placeholder="Bank Name" class="w-full p-2 rounded mb-4">
+            <input type="text" id="accountNumber" placeholder="Account Number" class="w-full p-2 rounded mb-4">
+            <input type="number" id="bankTransferAmount" placeholder="Amount" class="w-full p-2 rounded mb-4">
+            <button id="submitBankTransfer" class="w-full py-2 bg-blue-600 rounded">Transfer</button>
+        </div>
+    </div>
+
+    <!-- Card Selection Modal -->
+    <div id="cardSelectionModal" class="modal-overlay hidden card-selection-modal">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="cardSelectionModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4" id="cardSelectionTitle">Platinum</h3>
+            <p class="text-gray-400 text-sm mb-4" id="cardSelectionPrice">$199 / year</p>
+
+            <div class="card-carousel" id="cardCarousel">
+                <!-- Cards will be dynamically rendered here -->
+            </div>
+            <div class="dots" id="cardDots">
+                <!-- Dots will be dynamically rendered here -->
+            </div>
+            <button id="chooseCardBtn" class="w-full py-2 bg-blue-600 rounded mt-6">Choose Card</button>
+        </div>
+    </div>
+
+    <!-- Transfer Options Modal -->
+    <div id="transferOptionsModal" class="modal-overlay hidden transfer-options-modal">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="transferOptionsModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4">Transfer Options</h3>
+            <div class="flex flex-col gap-3">
+                <button class="action-button" id="transfer-fund-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M440-320v-320h80v320h-80Zm40 240q-33 0-56.5-23.5T440-160q0-33 23.5-56.5T520-240q33 0 56.5 23.5T600-160q0 33-23.5 56.5T520-80Zm0-400q-33 0-56.5-23.5T440-560q0-33 23.5-56.5T520-640q33 0 56.5 23.5T600-560q0 33-23.5 56.5T520-480Zm0-400q-33 0-56.5-23.5T440-960q0-33 23.5-56.5T520-1040q33 0 56.5 23.5T600-960q0 33-23.5 56.5T520-880Z"/></svg>
+                    <span>Fund Card</span>
+                </button>
+                <button class="action-button" id="transfer-withdraw-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-280v-400h560v400H200Zm0 80q-33 0-56.5-23.5T120-280v-400q0-33 23.5-56.5T200-760h560q33 0 56.5 23.5T840-680v400q0 33-23.5 56.5T760-200H200Zm280-80q33 0 56.5-23.5T560-280q0-33-23.5-56.5T480-360q-33 0-56.5 23.5T400-280q0 33 23.5 56.5T480-200Zm-280 0h560-560Z"/></svg>
+                    <span>Withdraw</span>
+                </button>
+                <button class="action-button" id="transfer-mtn-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-280v-400h560v400H200Zm0 80q-33 0-56.5-23.5T120-280v-400q0-33 23.5-56.5T200-760h560q33 0 56.5 23.5T840-680v400q0 33-23.5 56.5T760-200H200Zm280-80q33 0 56.5-23.5T560-280q0-33-23.5-56.5T480-360q-33 0-56.5 23.5T400-280q0 33 23.5 56.5T480-200Zm-280 0h560-560Z"/></svg>
+                    <span>MTN Payment</span>
+                </button>
+                <button class="action-button" id="transfer-airtel-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-280v-400h560v400H200Zm0 80q-33 0-56.5-23.5T120-280v-400q0-33 23.5-56.5T200-760h560q33 0 56.5 23.5T840-680v400q0 33-23.5 56.5T760-200H200Zm280-80q33 0 56.5-23.5T560-280q0-33-23.5-56.5T480-360q-33 0-56.5 23.5T400-280q0 33 23.5 56.5T480-200Zm-280 0h560-560Z"/></svg>
+                    <span>AIRTEL Payment</span>
+                </button>
+                <button class="action-button" id="transfer-bank-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-280v-400h560v400H200Zm0 80q-33 0-56.5-23.5T120-280v-400q0-33 23.5-56.5T200-760h560q33 0 56.5 23.5T840-680v400q0 33-23.5 56.5T760-200H200Zm280-80q33 0 56.5-23.5T560-280q0-33-23.5-56.5T480-360q-33 0-56.5 23.5T400-280q0 33 23.5 56.5T480-200Zm-280 0h560-560Z"/></svg>
+                    <span>Bank Transfer</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="searchModal" class="modal-overlay hidden search-modal">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="searchModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4">Search Transactions</h3>
+            <input type="text" id="searchQueryInput" placeholder="Search by type or amount" class="w-full p-2 rounded mb-4">
+            <div id="searchResultsList" class="search-results-list">
+                <!-- Search results will be dynamically added here -->
+            </div>
+            <button id="clearSearchBtn" class="w-full py-2 bg-gray-600 rounded mt-4">Clear Search</button>
+        </div>
+    </div>
+
+    <!-- Quick Add Modal -->
+    <div id="quickAddModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="quickAddModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4">Quick Add Transaction</h3>
+            <input type="number" id="quickAddAmount" placeholder="Amount" class="w-full p-2 rounded mb-4">
+            <select id="quickAddType" class="w-full p-2 rounded mb-4">
+                <option value="Online Purchase">Online Purchase</option>
+                <option value="Top up">Top up</option>
+                <option value="Received Funds">Received Funds</option>
+                <option value="Bill Payment">Bill Payment</option>
+            </select>
+            <div class="flex justify-around mb-4">
+                <label class="text-white mr-2"><input type="radio" name="quickAddIsCredit" value="true" checked> Credit</label>
+                <label class="text-white"><input type="radio" name="quickAddIsCredit" value="false"> Debit</label>
+            </div>
+            <button id="submitQuickAdd" class="w-full py-2 bg-blue-600 rounded">Add Transaction</button>
+        </div>
+    </div>
+
+    <!-- All Transactions Modal -->
+    <div id="allTransactionsModal" class="modal-overlay hidden all-transactions-modal">
+        <div class="modal-content">
+            <button class="close-btn" data-modal-id="allTransactionsModal">&times;</button>
+            <h3 class="text-xl font-bold mb-4">All Transactions</h3>
+            <div id="fullTransactionsList" class="transactions-list-full">
+                <!-- All transaction items will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        Loading...
+    </div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, query, orderBy, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase instances
+        let app, db, auth;
+        let userId = null; // Will store the authenticated user's ID
+        let unsubscribeFromTransactions = null; // To manage Firestore listener for transactions
+
+        // Firebase config and app ID (provided by Canvas environment)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'criteria-pay-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "demo-api-key",
+            authDomain: "criteria-pay-demo.firebaseapp.com",
+            projectId: "criteria-pay-demo",
+            storageBucket: "criteria-pay-demo.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "demo-app-id"
+        };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Card data (matching the image and common types)
+        const cardData = [
+            {
+                type: 'Platinum',
+                number: '**** **** 8882',
+                expiry: '01/26',
+                name: 'NSUBUGA JORDAN',
+                logoText: 'VISA Platinum',
+                gradient: 'linear-gradient(135deg, #6c7a89, #4a5568)',
+                price: '$199 / year'
+            },
+            {
+                type: 'Silver',
+                number: '**** **** 1234',
+                expiry: '01/25',
+                name: 'NSUBUGA JORDAN',
+                logoText: 'VISA Silver',
+                gradient: 'linear-gradient(135deg, #cccccc, #aaaaaa)',
+                price: '$49 / year'
+            }
+        ];
+
+        // Global application state
+        let appState = {
+            loggedInUser: null, // Stores user info if logged in
+            currentScreen: 'loading', // 'loading', 'login', or 'dashboard'
+            currentBalance: 2000000, // Will be fetched from Firestore
+            transactions: [], // Will be fetched from Firestore
+            // Modal visibility states
+            showFundModal: false,
+            showWithdrawModal: false,
+            showMobileMoneyModal: false,
+            showBankTransferModal: false,
+            showCardSelectionModal: false,
+            showTransferOptionsModal: false,
+            showSearchModal: false, // New
+            showQuickAddModal: false, // New
+            showAllTransactionsModal: false, // New
+            selectedCardIndex: 0
+        };
+
+        // DOM element references
+        const loginScreenEl = document.getElementById('login-screen');
+        const cardDashboardScreenEl = document.getElementById('card-dashboard-screen');
+        const loginForm = document.getElementById('login-form');
+        const logoutBtn = document.getElementById('logout-btn');
+        const currentBalanceEl = document.getElementById('currentBalance');
+        const transactionsListEl = document.getElementById('transactionsList');
+        const navBarEl = document.querySelector('.nav-bar');
+        const loadingOverlayEl = document.getElementById('loadingOverlay');
+        const dashboardHeaderTitle = document.getElementById('dashboard-header-title');
+
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const closeMessageBoxBtn = document.getElementById('closeMessageBox');
+
+        // Dashboard Header Buttons
+        const searchBtn = document.getElementById('search-btn');
+        const addBtn = document.getElementById('add-btn');
+        const returnMainBtn = document.getElementById('return-main-btn');
+
+        // Modal Elements
+        const fundCardModal = document.getElementById('fundCardModal');
+        const fundAmountInput = document.getElementById('fundAmount');
+        const submitFundBtn = document.getElementById('submitFund');
+
+        const withdrawModal = document.getElementById('withdrawModal');
+        const withdrawAmountInput = document.getElementById('withdrawAmount');
+        const submitWithdrawBtn = document.getElementById('submitWithdraw');
+
+        const mobileMoneyModal = document.getElementById('mobileMoneyModal');
+        const mobileMoneyModalTitle = document.getElementById('mobileMoneyModalTitle');
+        const mobileMoneyNumberInput = document.getElementById('mobileMoneyNumber');
+        const mobileMoneyAmountInput = document.getElementById('mobileMoneyAmount');
+        const submitMobileMoneyBtn = document.getElementById('submitMobileMoney');
+
+        const bankTransferModal = document.getElementById('bankTransferModal');
+        const bankNameInput = document.getElementById('bankName');
+        const accountNumberInput = document.getElementById('accountNumber');
+        const bankTransferAmountInput = document.getElementById('bankTransferAmount');
+        const submitBankTransferBtn = document.getElementById('submitBankTransfer');
+
+        // Card Selection Modal Elements
+        const virtualCardDisplay = document.getElementById('virtual-card-display');
+        const displayedCardNumber = document.getElementById('displayedCardNumber');
+        const displayedCardLogo = document.getElementById('displayedCardLogo');
+        const displayedCardName = document.getElementById('displayedCardName');
+        const displayedCardExpiry = document.getElementById('displayedCardExpiry');
+
+        const cardSelectionModal = document.getElementById('cardSelectionModal');
+        const cardSelectionTitle = document.getElementById('cardSelectionTitle');
+        const cardSelectionPrice = document.getElementById('cardSelectionPrice');
+        const cardCarousel = document.getElementById('cardCarousel');
+        const cardDots = document.getElementById('cardDots');
+        const chooseCardBtn = document.getElementById('chooseCardBtn');
+
+        // Transfer Options Modal Elements
+        const transferOptionsModal = document.getElementById('transferOptionsModal');
+        const transferFundBtn = document.getElementById('transfer-fund-btn');
+        const transferWithdrawBtn = document.getElementById('transfer-withdraw-btn');
+        const transferMtnBtn = document.getElementById('transfer-mtn-btn');
+        const transferAirtelBtn = document.getElementById('transfer-airtel-btn');
+        const transferBankBtn = document.getElementById('transfer-bank-btn');
+
+        // Search Modal Elements
+        const searchModal = document.getElementById('searchModal');
+        const searchQueryInput = document.getElementById('searchQueryInput');
+        const searchResultsList = document.getElementById('searchResultsList');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+        // Quick Add Modal Elements
+        const quickAddModal = document.getElementById('quickAddModal');
+        const quickAddAmountInput = document.getElementById('quickAddAmount');
+        const quickAddTypeSelect = document.getElementById('quickAddType');
+        const quickAddIsCreditRadios = document.querySelectorAll('input[name="quickAddIsCredit"]');
+        const submitQuickAddBtn = document.getElementById('submitQuickAdd');
+
+        // All Transactions Modal Elements
+        const allTransactionsModal = document.getElementById('allTransactionsModal');
+        const fullTransactionsList = document.getElementById('fullTransactionsList');
+
+        // Get all close buttons for modals
+        const modalCloseButtons = document.querySelectorAll('.modal-overlay .close-btn');
+
+
+        /**
+         * Updates the application state and triggers a re-render.
+         * @param {object} newState - The new state properties to merge.
+         */
+        function updateAppState(newState) {
+            Object.assign(appState, newState);
+            renderApp();
+        }
+
+        /**
+         * Shows a custom message box.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            if (messageText && messageBox) {
+                messageText.textContent = message;
+                messageBox.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Hides the custom message box.
+         */
+        function hideMessageBox() {
+            if (messageBox) {
+                messageBox.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Shows a specific modal.
+         * @param {HTMLElement} modalElement - The modal element to show.
+         */
+        function showModal(modalElement) {
+            if (modalElement) {
+                modalElement.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Hides a specific modal.
+         * @param {HTMLElement} modalElement - The modal element to hide.
+         */
+        function hideModal(modalElement) {
+            if (modalElement) {
+                modalElement.classList.add('hidden');
+                // Clear inputs when closing modal
+                const inputs = modalElement.querySelectorAll('input[type="text"], input[type="number"], select');
+                inputs.forEach(input => input.value = '');
+                // Reset radio buttons if any
+                quickAddIsCreditRadios.forEach(radio => {
+                    if (radio.value === 'true') radio.checked = true;
+                    else radio.checked = false;
+                });
+            }
+        }
+
+        /**
+         * Shows the loading overlay.
+         */
+        function showLoading() {
+            if (loadingOverlayEl) {
+                loadingOverlayEl.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Hides the loading overlay.
+         */
+        function hideLoading() {
+            if (loadingOverlayEl) {
+                loadingOverlayEl.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Updates the displayed balance on the dashboard.
+         */
+        function updateBalanceDisplay() {
+            if (currentBalanceEl) {
+                currentBalanceEl.textContent = `$${appState.currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+        }
+
+        /**
+         * Renders the list of transactions.
+         * @param {Array} transactionsToRender - The array of transactions to display.
+         * @param {HTMLElement} targetElement - The DOM element to render transactions into.
+         */
+        function renderTransactionsList(transactionsToRender, targetElement) {
+            if (targetElement) {
+                targetElement.innerHTML = ''; // Clear existing transactions
+                if (transactionsToRender.length === 0) {
+                    targetElement.innerHTML = '<p class="text-gray-400 text-center py-4">No transactions found.</p>';
+                    return;
+                }
+                transactionsToRender.forEach(transaction => {
+                    const transactionItem = document.createElement('div');
+                    transactionItem.classList.add('transaction-item');
+                    const amountClass = transaction.isCredit ? 'text-green-400' : 'text-red-400';
+                    const amountSign = transaction.isCredit ? '+' : '-';
+
+                    transactionItem.innerHTML = `
+                        <div>
+                            <div class="font-medium">${transaction.type}</div>
+                            <div class="text-xs text-gray-400">${transaction.date} | ${transaction.time}</div>
+                        </div>
+                        <div class="${amountClass} font-semibold">${amountSign}$${transaction.amount.toFixed(2)}</div>
+                    `;
+                    targetElement.appendChild(transactionItem);
+                });
+            }
+        }
+
+        /**
+         * Initializes Firebase and sets up authentication listener.
+         */
+        async function initFirebase() {
+            showLoading();
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase Auth: User is signed in with UID:", userId);
+                        updateAppState({ loggedInUser: { username: user.displayName || 'User' }, currentScreen: 'dashboard' });
+                        await fetchUserDataAndTransactions();
+                    } else {
+                        console.log("Firebase Auth: No user is signed in.");
+                        if (initialAuthToken) {
+                            try {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                                console.log("Firebase Auth: Signed in with custom token.");
+                            } catch (error) {
+                                console.error("Firebase Auth: Error signing in with custom token:", error);
+                                await signInAnonymously(auth);
+                                console.log("Firebase Auth: Signed in anonymously as fallback.");
+                            }
+                        } else {
+                            await signInAnonymously(auth);
+                            console.log("Firebase Auth: Signed in anonymously.");
+                        }
+                        updateAppState({ loggedInUser: null, currentScreen: 'login' });
+                    }
+                    hideLoading();
+                });
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessageBox("Failed to initialize app. Please try again later.");
+                hideLoading();
+            }
+        }
+
+        /**
+         * Fetches user balance and sets up real-time transaction listener.
+         */
+        async function fetchUserDataAndTransactions() {
+            if (!userId) {
+                console.error("Cannot fetch user data: userId is null.");
+                return;
+            }
+
+            const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/profile/userDoc`);
+            const transactionsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
+
+            // Fetch user profile data (balance and selected card)
+            try {
+                const docSnap = await getDoc(userProfileRef);
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    appState.currentBalance = userData.balance || 0;
+                    appState.selectedCardIndex = userData.selectedCardIndex !== undefined ? userData.selectedCardIndex : 0;
+                    console.log("Fetched user data:", appState.currentBalance, appState.selectedCardIndex);
+                } else {
+                    await setDoc(userProfileRef, { balance: 0, selectedCardIndex: 0 });
+                    appState.currentBalance = 0;
+                    appState.selectedCardIndex = 0;
+                    console.log("User profile created with default data.");
+                }
+                updateBalanceDisplay();
+            } catch (error) {
+                console.error("Error fetching or setting user profile:", error);
+                showMessageBox("Error loading user data.");
+            }
+
+            // Set up real-time listener for transactions
+            if (unsubscribeFromTransactions) {
+                unsubscribeFromTransactions(); // Unsubscribe from previous listener if exists
+            }
+            const q = query(transactionsCollectionRef, orderBy('dateAdded', 'desc')); // Order by a timestamp
+            unsubscribeFromTransactions = onSnapshot(q, (snapshot) => {
+                const transactions = [];
+                snapshot.forEach((doc) => {
+                    transactions.push(doc.data());
+                });
+                appState.transactions = transactions;
+                // Only render recent transactions on dashboard by default
+                renderTransactionsList(appState.transactions.slice(0, 5), transactionsListEl);
+                console.log("Transactions updated:", transactions);
+            }, (error) => {
+                console.error("Error listening to transactions:", error);
+                showMessageBox("Error loading transactions.");
+            });
+        }
+
+        /**
+         * Handles login form submission.
+         * @param {Event} event - The form submit event.
+         */
+        async function handleLogin(event) {
+            event.preventDefault();
+            console.log('Login form submitted.');
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+
+            console.log('Attempting login with:', { username: usernameInput, password: passwordInput });
+
+            if (usernameInput === 'Nsubuga Jordan' && passwordInput === 'Sky_games2011') {
+                console.log('Demo login successful. Transitioning to dashboard.');
+                // For demo purposes, if credentials match, assume successful "login"
+                // The actual Firebase authentication (anonymous/custom token) happens in initFirebase
+                updateAppState({ loggedInUser: { username: usernameInput }, currentScreen: 'dashboard' });
+            } else {
+                console.log('Login failed: Invalid credentials.');
+                showMessageBox('Invalid username or password.');
+            }
+        }
+
+        /**
+         * Handles user logout.
+         */
+        async function handleLogout() {
+            if (unsubscribeFromTransactions) {
+                unsubscribeFromTransactions(); // Stop listening to transactions
+                unsubscribeFromTransactions = null;
+            }
+            try {
+                await auth.signOut();
+                console.log("User signed out.");
+                updateAppState({ loggedInUser: null, currentScreen: 'login', currentBalance: 0, transactions: [], selectedCardIndex: 0 });
+                showMessageBox('You have been logged out.');
+            } catch (error) {
+                console.error("Error signing out:", error);
+                showMessageBox("Error logging out.");
+            }
+        }
+
+        /**
+         * Adds a new transaction to Firestore and updates the user's balance.
+         * @param {string} type - Type of transaction (e.g., 'Card Funded').
+         * @param {number} amount - Amount of the transaction.
+         * @param {boolean} isCredit - True if it's a credit, false for debit.
+         */
+        async function recordTransaction(type, amount, isCredit) {
+            if (!userId) {
+                showMessageBox("Please log in to perform transactions.");
+                return;
+            }
+
+            showLoading();
+            try {
+                const transactionsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/transactions`);
+                const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/profile/userDoc`);
+
+                const now = new Date();
+                const newTransaction = {
+                    type: type,
+                    amount: amount,
+                    isCredit: isCredit,
+                    date: now.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' }),
+                    time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                    dateAdded: now.getTime() // Timestamp for ordering
+                };
+
+                let newBalance = appState.currentBalance;
+                if (isCredit) {
+                    newBalance += amount;
+                } else {
+                    newBalance -= amount;
+                }
+
+                if (newBalance < 0) {
+                    showMessageBox('Insufficient balance for this transaction.');
+                    hideLoading();
+                    return;
+                }
+
+                await addDoc(transactionsCollectionRef, newTransaction);
+                await setDoc(userProfileRef, { balance: newBalance }, { merge: true });
+
+                console.log("Transaction recorded and balance updated:", newTransaction, newBalance);
+                showMessageBox(`${type} of $${amount.toFixed(2)} successful!`);
+            } catch (error) {
+                console.error("Error recording transaction or updating balance:", error);
+                showMessageBox("Transaction failed. Please try again.");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // --- Modal Specific Handlers ---
+
+        function handleSubmitFund() {
+            const amount = parseFloat(fundAmountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                showMessageBox('Please enter a valid amount to fund.');
+                return;
+            }
+            recordTransaction('Card Funded', amount, true);
+            hideModal(fundCardModal);
+        }
+
+        function handleSubmitWithdraw() {
+            const amount = parseFloat(withdrawAmountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                showMessageBox('Please enter a valid amount to withdraw.');
+                return;
+            }
+            recordTransaction('Withdrawal', amount, false);
+            hideModal(withdrawModal);
+        }
+
+        let currentMobileMoneyType = ''; // To distinguish MTN/AIRTEL
+
+        function handleSubmitMobileMoney() {
+            const number = mobileMoneyNumberInput.value.trim();
+            const amount = parseFloat(mobileMoneyAmountInput.value);
+
+            if (!number || isNaN(amount) || amount <= 0) {
+                showMessageBox('Please enter a valid number and amount.');
+                return;
+            }
+            recordTransaction(`${currentMobileMoneyType} Payment to ${number}`, amount, false);
+            hideModal(mobileMoneyModal);
+        }
+
+        function handleSubmitBankTransfer() {
+            const bankName = bankNameInput.value.trim();
+            const accountNumber = accountNumberInput.value.trim();
+            const amount = parseFloat(bankTransferAmountInput.value);
+
+            if (!bankName || !accountNumber || isNaN(amount) || amount <= 0) {
+                showMessageBox('Please fill in all bank transfer details.');
+                return;
+            }
+            recordTransaction(`Bank Transfer to ${bankName} (${accountNumber})`, amount, false);
+            hideModal(bankTransferModal);
+        }
+
+        // --- Card Selection Modal Logic ---
+        function renderCardCarousel() {
+            if (!cardCarousel || !cardDots) return;
+
+            cardCarousel.innerHTML = '';
+            cardDots.innerHTML = '';
+
+            cardData.forEach((card, index) => {
+                const cardItem = document.createElement('div');
+                cardItem.classList.add('card-item');
+                if (card.type === 'Silver') {
+                    cardItem.classList.add('silver');
+                } else {
+                    cardItem.style.background = card.gradient;
+                }
+               
+                if (index === appState.selectedCardIndex) {
+                    cardItem.classList.add('selected');
+                }
+                cardItem.dataset.cardIndex = index;
+
+                cardItem.innerHTML = `
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <span class="text-xs text-gray-300">Virtual Card</span>
+                            <div class="font-mono text-xl mt-1">${card.number}</div>
+                        </div>
+                        <img src="https://placehold.co/80x20/000000/ffffff?text=${encodeURIComponent(card.logoText)}" alt="${card.logoText} Logo" class="h-5">
+                    </div>
+                    <svg class="absolute top-6 right-6 h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 5h2a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3z"></path>
+                        <path d="M19 9v6"></path>
+                        <path d="M5 9v6"></path>
+                    </svg>
+                    <div class="absolute bottom-6 left-6 text-sm font-semibold">${card.name}</div>
+                    <div class="absolute bottom-6 right-6 text-sm text-gray-300">${card.expiry}</div>
+                `;
+                cardCarousel.appendChild(cardItem);
+
+                const dot = document.createElement('span');
+                dot.classList.add('dot');
+                if (index === appState.selectedCardIndex) {
+                    dot.classList.add('active');
+                }
+                dot.dataset.cardIndex = index;
+                dot.addEventListener('click', handleDotClick);
+                cardDots.appendChild(dot);
+            });
+
+            const currentSelectedCard = cardData[appState.selectedCardIndex];
+            if (cardSelectionTitle) cardSelectionTitle.textContent = currentSelectedCard.type;
+            if (cardSelectionPrice) cardSelectionPrice.textContent = currentSelectedCard.price;
+
+            const initialCardElement = cardCarousel.querySelector(`[data-card-index="${appState.selectedCardIndex}"]`);
+            if (initialCardElement) {
+                cardCarousel.scrollLeft = initialCardElement.offsetLeft - (cardCarousel.offsetWidth - initialCardElement.offsetWidth) / 2;
+            }
+        }
+
+        function handleCardCarouselScroll() {
+            const cards = cardCarousel.querySelectorAll('.card-item');
+            const dots = cardDots.querySelectorAll('.dot');
+            const scrollLeft = cardCarousel.scrollLeft;
+            const carouselWidth = cardCarousel.offsetWidth;
+
+            let closestCardIndex = 0;
+            let minDistance = Infinity;
+
+            cards.forEach((card, index) => {
+                const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+                const carouselCenter = scrollLeft + carouselWidth / 2;
+                const distance = Math.abs(cardCenter - carouselCenter);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestCardIndex = index;
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                if (index === closestCardIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            const currentSelectedCard = cardData[closestCardIndex];
+            if (cardSelectionTitle) cardSelectionTitle.textContent = currentSelectedCard.type;
+            if (cardSelectionPrice) cardSelectionPrice.textContent = currentSelectedCard.price;
+        }
+
+        function handleDotClick(event) {
+            const index = parseInt(event.target.dataset.cardIndex);
+            updateAppState({ selectedCardIndex: index });
+            const cards = cardCarousel.querySelectorAll('.card-item');
+            if (cards[index]) {
+                cardCarousel.scrollLeft = cards[index].offsetLeft - (cardCarousel.offsetWidth - cards[index].offsetWidth) / 2;
+            }
+        }
+
+        async function handleChooseCard() {
+            if (!userId) {
+                showMessageBox("Please log in to choose a card.");
+                return;
+            }
+            showLoading();
+            try {
+                const userProfileRef = doc(db, `artifacts/${appId}/users/${userId}/profile/userDoc`);
+                await setDoc(userProfileRef, { selectedCardIndex: appState.selectedCardIndex }, { merge: true });
+                showMessageBox(`${cardData[appState.selectedCardIndex].type} card selected as primary!`);
+                updateAppState({ showCardSelectionModal: false });
+            } catch (error) {
+                console.error("Error saving selected card:", error);
+                showMessageBox("Failed to save card selection.");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // --- Search Modal Logic ---
+        function handleSearchTransactions() {
+            const query = searchQueryInput.value.toLowerCase().trim();
+            if (query === '') {
+                renderTransactionsList(appState.transactions, searchResultsList); // Show all if query is empty
+                return;
+            }
+
+            const filteredTransactions = appState.transactions.filter(transaction => {
+                return transaction.type.toLowerCase().includes(query) ||
+                       transaction.amount.toString().includes(query);
+            });
+            renderTransactionsList(filteredTransactions, searchResultsList);
+        }
+
+        function handleClearSearch() {
+            searchQueryInput.value = '';
+            renderTransactionsList(appState.transactions, searchResultsList);
+        }
+
+        // --- Quick Add Modal Logic ---
+        function handleSubmitQuickAdd() {
+            const amount = parseFloat(quickAddAmountInput.value);
+            const type = quickAddTypeSelect.value;
+            const isCredit = document.querySelector('input[name="quickAddIsCredit"]:checked').value === 'true';
+
+            if (isNaN(amount) || amount <= 0) {
+                showMessageBox('Please enter a valid amount.');
+                return;
+            }
+            recordTransaction(type, amount, isCredit);
+            hideModal(quickAddModal);
+        }
+
+        // --- All Transactions Modal Logic ---
+        function handleSeeAllTransactions() {
+            renderTransactionsList(appState.transactions, fullTransactionsList);
+            updateAppState({ showAllTransactionsModal: true });
+        }
+
+
+        /**
+         * Main render function to update the UI based on appState.
+         */
+        function renderApp() {
+            // Hide all screens first
+            if (loginScreenEl) loginScreenEl.classList.add('hidden');
+            if (cardDashboardScreenEl) cardDashboardScreenEl.classList.add('hidden');
+
+            // Hide all modals
+            if (fundCardModal) hideModal(fundCardModal);
+            if (withdrawModal) hideModal(withdrawModal);
+            if (mobileMoneyModal) hideModal(mobileMoneyModal);
+            if (bankTransferModal) hideModal(bankTransferModal);
+            if (cardSelectionModal) hideModal(cardSelectionModal);
+            if (transferOptionsModal) hideModal(transferOptionsModal);
+            if (searchModal) hideModal(searchModal); // Hide search modal
+            if (quickAddModal) hideModal(quickAddModal); // Hide quick add modal
+            if (allTransactionsModal) hideModal(allTransactionsModal); // Hide all transactions modal
+
+            // Show the appropriate screen
+            if (appState.currentScreen === 'loading') {
+                showLoading();
+            } else if (appState.currentScreen === 'login') {
+                hideLoading();
+                if (loginScreenEl) loginScreenEl.classList.remove('hidden');
+            } else if (appState.currentScreen === 'dashboard') {
+                hideLoading();
+                if (cardDashboardScreenEl) cardDashboardScreenEl.classList.remove('hidden');
+
+                if (dashboardHeaderTitle && appState.loggedInUser) {
+                    dashboardHeaderTitle.textContent = `Hello ${appState.loggedInUser.username}`;
+                }
+
+                updateBalanceDisplay();
+                // Only render recent transactions on dashboard (first 5)
+                renderTransactionsList(appState.transactions.slice(0, 5), transactionsListEl);
+
+                const currentDisplayedCard = cardData[appState.selectedCardIndex];
+                if (virtualCardDisplay) {
+                    virtualCardDisplay.style.background = currentDisplayedCard.gradient;
+                }
+                if (displayedCardNumber) {
+                    displayedCardNumber.textContent = currentDisplayedCard.number;
+                }
+                if (displayedCardLogo) {
+                    displayedCardLogo.src = `https://placehold.co/80x20/000000/ffffff?text=${encodeURIComponent(currentDisplayedCard.logoText)}`;
+                }
+                if (displayedCardName) {
+                    displayedCardName.textContent = currentDisplayedCard.name;
+                }
+                if (displayedCardExpiry) {
+                    displayedCardExpiry.textContent = currentDisplayedCard.expiry;
+                }
+
+                if (appState.showFundModal) showModal(fundCardModal);
+                if (appState.showWithdrawModal) showModal(withdrawModal);
+                if (appState.showMobileMoneyModal) showModal(mobileMoneyModal);
+                if (appState.showBankTransferModal) showModal(bankTransferModal);
+                if (appState.showCardSelectionModal) {
+                    showModal(cardSelectionModal);
+                    renderCardCarousel();
+                }
+                if (appState.showTransferOptionsModal) showModal(transferOptionsModal);
+                if (appState.showSearchModal) {
+                    showModal(searchModal);
+                    handleSearchTransactions(); // Initial render of search results
+                }
+                if (appState.showQuickAddModal) showModal(quickAddModal);
+                if (appState.showAllTransactionsModal) showModal(allTransactionsModal);
+            }
+        }
+
+        // Event Listeners - attached only once after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+
+            if (closeMessageBoxBtn) {
+                closeMessageBoxBtn.addEventListener('click', hideMessageBox);
+            }
+
+            // Dashboard Header Buttons
+            if (searchBtn) searchBtn.addEventListener('click', () => updateAppState({ showSearchModal: true }));
+            if (addBtn) addBtn.addEventListener('click', () => updateAppState({ showQuickAddModal: true }));
+            if (returnMainBtn) returnMainBtn.addEventListener('click', () => {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'closeApp' }, '*');
+                } else {
+                    window.location.href = 'main.html';
+                }
+            });
+            if (document.getElementById('see-all-transactions')) {
+                document.getElementById('see-all-transactions').addEventListener('click', handleSeeAllTransactions);
+            }
+
+            // Attach submit listeners for modals
+            if (submitFundBtn) submitFundBtn.addEventListener('click', handleSubmitFund);
+            if (submitWithdrawBtn) submitWithdrawBtn.addEventListener('click', handleSubmitWithdraw);
+            if (submitMobileMoneyBtn) submitMobileMoneyBtn.addEventListener('click', handleSubmitMobileMoney);
+            if (submitBankTransferBtn) submitBankTransferBtn.addEventListener('click', handleSubmitBankTransfer);
+
+            // Attach close listeners for all modals
+            modalCloseButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const modalId = event.target.dataset.modalId;
+                    if (modalId === 'fundCardModal') updateAppState({ showFundModal: false });
+                    else if (modalId === 'withdrawModal') updateAppState({ showWithdrawModal: false });
+                    else if (modalId === 'mobileMoneyModal') updateAppState({ showMobileMoneyModal: false });
+                    else if (modalId === 'bankTransferModal') updateAppState({ showBankTransferModal: false });
+                    else if (modalId === 'cardSelectionModal') updateAppState({ showCardSelectionModal: false });
+                    else if (modalId === 'transferOptionsModal') updateAppState({ showTransferOptionsModal: false });
+                    else if (modalId === 'searchModal') updateAppState({ showSearchModal: false });
+                    else if (modalId === 'quickAddModal') updateAppState({ showQuickAddModal: false });
+                    else if (modalId === 'allTransactionsModal') updateAppState({ showAllTransactionsModal: false });
+                });
+            });
+
+            // Card Selection Modal Event Listeners
+            if (virtualCardDisplay) virtualCardDisplay.addEventListener('click', () => updateAppState({ showCardSelectionModal: true }));
+            if (cardCarousel) cardCarousel.addEventListener('scroll', handleCardCarouselScroll);
+            if (chooseCardBtn) chooseCardBtn.addEventListener('click', handleChooseCard);
+
+            // Transfer Options Modal button listeners
+            if (transferFundBtn) transferFundBtn.addEventListener('click', () => { updateAppState({ showTransferOptionsModal: false, showFundModal: true }); });
+            if (transferWithdrawBtn) transferWithdrawBtn.addEventListener('click', () => { updateAppState({ showTransferOptionsModal: false, showWithdrawModal: true }); });
+            if (transferMtnBtn) transferMtnBtn.addEventListener('click', () => { currentMobileMoneyType = 'MTN'; if(mobileMoneyModalTitle) mobileMoneyModalTitle.textContent = 'MTN Payment'; updateAppState({ showTransferOptionsModal: false, showMobileMoneyModal: true }); });
+            if (transferAirtelBtn) transferAirtelBtn.addEventListener('click', () => { currentMobileMoneyType = 'AIRTEL'; if(mobileMoneyModalTitle) mobileMoneyModalTitle.textContent = 'AIRTEL Payment'; updateAppState({ showTransferOptionsModal: false, showMobileMoneyModal: true }); });
+            if (transferBankBtn) transferBankBtn.addEventListener('click', () => { updateAppState({ showTransferOptionsModal: false, showBankTransferModal: true }); });
+
+            // Search Modal Event Listeners
+            if (searchQueryInput) searchQueryInput.addEventListener('input', handleSearchTransactions);
+            if (clearSearchBtn) clearSearchBtn.addEventListener('click', handleClearSearch);
+
+            // Quick Add Modal Event Listener
+            if (submitQuickAddBtn) submitQuickAddBtn.addEventListener('click', handleSubmitQuickAdd);
+
+            if (navBarEl) {
+                navBarEl.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (event) => {
+                        navBarEl.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                        event.currentTarget.classList.add('active');
+                        const navTarget = event.currentTarget.dataset.nav;
+
+                        // Reset all modal states to false before setting the new one
+                        updateAppState({
+                            showFundModal: false, showWithdrawModal: false, showMobileMoneyModal: false,
+                            showBankTransferModal: false, showCardSelectionModal: false,
+                            showTransferOptionsModal: false, showSearchModal: false,
+                            showQuickAddModal: false, showAllTransactionsModal: false
+                        });
+
+                        if (navTarget === 'cards') {
+                            updateAppState({ currentScreen: 'dashboard', showCardSelectionModal: true });
+                        } else if (navTarget === 'home') {
+                            updateAppState({ currentScreen: 'dashboard' });
+                        } else if (navTarget === 'transfer') {
+                            updateAppState({ currentScreen: 'dashboard', showTransferOptionsModal: true });
+                        } else {
+                            showMessageBox(`Navigating to ${navTarget} screen (feature not fully implemented in this demo).`);
+                        }
+                    });
+                });
+            }
+
+            // Initial Firebase initialization and app render
+            initFirebase();
+        });
+    </script>
+</body>
+</html>
