@@ -1,5 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UgPay • Monorepo Preview</title>
+    <style>
+      :root { --bg:#0b1020; --panel:#12182b; --muted:#9aa3b2; --text:#e8eefc; --brand:#4f8cff; --ok:#19c37d; --warn:#f6c34a; --err:#ef4444; }
+      html,body { height:100%; }
+      body {
+        margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(1200px 800px at 10% -10%, #1a2340, transparent), radial-gradient(1000px 700px at 120% 20%, #1b2a44, transparent), var(--bg);
+        color: var(--text);
+        display:flex; align-items:center; justify-content:center;
+      }
+      .wrap { width:100%; max-width: 960px; padding: 40px 20px; }
+      .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
+      .brand { display:flex; align-items:center; gap:12px; font-weight:600; font-size:20px; letter-spacing:.3px; }
+      .brand .dot { width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg, var(--brand), #7aa9ff); box-shadow:0 0 14px #4f8cff99; }
+      .panels { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:18px; }
+      .card { background:linear-gradient(180deg, #141c33, #0f1527); border:1px solid #273252; border-radius:14px; padding:18px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+      .card h2 { margin:0 0 8px; font-size:16px; font-weight:600; }
+      .muted { color: var(--muted); font-size:13px; }
+      .links { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+      a.btn { text-decoration:none; color:white; background:#1d2a4a; border:1px solid #2a3a61; padding:10px 14px; border-radius:10px; font-size:14px; transition: all .15s ease; }
+      a.btn.primary { background: linear-gradient(135deg, var(--brand), #7aa9ff); border:none; color:#071022; font-weight:600; }
+      a.btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+      .status { display:flex; align-items:center; gap:8px; margin-top:10px; font-size:13px; }
+      .pill { width:10px; height:10px; border-radius:50%; background:var(--warn); box-shadow:0 0 0 3px #f6c34a22; }
+      .ok { background:var(--ok); box-shadow:0 0 0 3px #19c37d22; }
+      .bad { background:var(--err); box-shadow:0 0 0 3px #ef444422; }
+      footer { margin-top:22px; text-align:center; color:#8d99ab; font-size:12px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="brand"><span class="dot"></span> UgPay • Developer Preview</div>
+        <div class="muted">Local environment</div>
+      </div>
+
+      <div class="panels">
+        <div class="card">
+          <h2>Admin Dashboard</h2>
+          <div class="muted">Next.js + Tailwind admin UI</div>
+          <div class="links">
+            <a class="btn primary" href="http://localhost:3000" target="_blank" rel="noopener noreferrer">Open Admin</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>API Service</h2>
+          <div class="muted">Fastify + Prisma (SQLite)</div>
+          <div class="links">
+            <a class="btn" href="http://localhost:4000/health" target="_blank" rel="noopener noreferrer">Health</a>
+            <a class="btn" href="http://localhost:4000/api/payments" target="_blank" rel="noopener noreferrer">Payments</a>
+            <a class="btn" href="http://localhost:4000/api/customers" target="_blank" rel="noopener noreferrer">Customers</a>
+          </div>
+          <div class="status"><span id="api-pill" class="pill"></span><span id="api-text">Checking API…</span></div>
+        </div>
+      </div>
+
+      <footer>
+        © <span id="year"></span> UgPay • Local Dev
+      </footer>
+    </div>
+
+    <script>
+      (function(){
+        const pill = document.getElementById('api-pill');
+        const text = document.getElementById('api-text');
+        const year = document.getElementById('year');
+        year.textContent = new Date().getFullYear();
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 2500);
+        fetch('http://localhost:4000/health', { signal: controller.signal })
+          .then(r => r.ok ? r.json() : Promise.reject(new Error('Bad status')))
+          .then(() => { pill.classList.add('ok'); text.textContent = 'API online'; })
+          .catch(() => { pill.classList.add('bad'); text.textContent = 'API offline'; })
+          .finally(() => clearTimeout(id));
+      })();
+    </script>
+  </body>
+  </html>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
