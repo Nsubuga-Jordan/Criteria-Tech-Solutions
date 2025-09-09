@@ -1,0 +1,16 @@
+{
+  "name": "ugpay-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n API,ADMIN -c yellow.bold,cyan.bold \"npm:dev:api\" \"npm:dev:admin\"",
+    "dev:api": "npm run dev -w api",
+    "dev:admin": "npm run dev -w admin"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
